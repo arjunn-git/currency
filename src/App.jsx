@@ -1,51 +1,50 @@
-import React, { useState, useEffect } from 'react'
+import React, { useMemo, useState } from 'react'
 import Input from './components/Input'
 import useCurrencyInfo from './hooks/useCurrencyinfo'
 import './App.css'
 import src from './assets/images/bg.jpg'
 
 function App() {
-  const [amount, setAmount] = useState(1);
-  const [from, setFrom] = useState("usd");
-  const [to, setTo] = useState("inr");
-  const [convertedAmount, setConvertedAmount] = useState(0);
-  const [copied, setCopied] = useState(false);
+  const [amount, setAmount] = useState(1)
+  const [from, setFrom] = useState('usd')
+  const [to, setTo] = useState('inr')
+  const [copied, setCopied] = useState(false)
 
-  const { data: currencyInfo, loading, error, lastUpdated, refetch } = useCurrencyInfo(from);
-  const currencyOptions = Object.keys(currencyInfo);
+  const { data: currencyInfo, loading, error, lastUpdated, refetch } = useCurrencyInfo(from)
+  const currencyOptions = useMemo(
+    () => Object.keys(currencyInfo).length ? Object.keys(currencyInfo) : [from, to],
+    [currencyInfo, from, to]
+  )
 
-  // Auto-convert when amount, from, or to currencies change
-  useEffect(() => {
-    if (currencyInfo[to] && amount > 0) {
-      setConvertedAmount(amount * currencyInfo[to]);
-    }
-  }, [amount, from, to, currencyInfo]);
+  const convertedAmount = useMemo(
+    () => (currencyInfo[to] && amount > 0 ? amount * currencyInfo[to] : 0),
+    [amount, to, currencyInfo]
+  )
 
-  const swap = () => {
-    setFrom(to);
-    setTo(from);
-    // Conversion will happen automatically via useEffect
-  }
+  const isConversionReady = Boolean(currencyInfo[to] && amount > 0)
 
   const handleAmountChange = (value) => {
-    if (value >= 0) {
-      setAmount(value);
-    }
+    setAmount(value < 0 ? 0 : value)
+  }
+
+  const swap = () => {
+    setFrom(to)
+    setTo(from)
   }
 
   const copyToClipboard = async () => {
+    if (!isConversionReady) return
+
     try {
-      await navigator.clipboard.writeText(convertedAmount.toFixed(2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(convertedAmount.toFixed(2))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      console.error('Failed to copy: ', err)
     }
   }
 
-  const refreshRates = () => {
-    refetch();
-  }
+  const refreshRates = () => refetch()
 
   return (
     <div
@@ -79,7 +78,6 @@ function App() {
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();
-                        // Conversion happens automatically now
                     }}
                 >
                     <div className="w-full mb-2">
@@ -113,13 +111,23 @@ function App() {
                             selectedCurrency={to}
                             disabled={loading}
                         />
-                        {convertedAmount > 0 && (
+                        {isConversionReady && (
                           <button
                             type="button"
                             onClick={copyToClipboard}
-                            className="mt-2 sm:mt-3 text-xs sm:text-sm text-blue-600 hover:text-blue-800 underline transition-colors font-medium hover:bg-blue-50/50 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg"
+                            className="mt-3 w-full py-2.5 px-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-700 hover:text-blue-900 border-2 border-blue-300 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
                           >
-                            {copied ? '✅ Copied!' : '📋 Copy result'}
+                            {copied ? (
+                              <>
+                                <span>✅</span>
+                                <span>Copied to Clipboard!</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>📋</span>
+                                <span>Copy Result</span>
+                              </>
+                            )}
                           </button>
                         )}
                     </div>
@@ -136,7 +144,7 @@ function App() {
                     <button
                       type="submit"
                       className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:scale-105 font-bold text-base sm:text-lg tracking-wide"
-                      disabled={loading || !currencyInfo[to]}
+                      disabled={loading || !isConversionReady}
                     >
                       Convert {from.toUpperCase()} to {to.toUpperCase()}
                     </button>
