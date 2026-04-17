@@ -1,17 +1,53 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 function useCurrencyInfo(baseCurrency) {
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  useEffect(() => {
-    fetch(`https://v6.exchangerate-api.com/v6/7f9ce16b100e707e2452bfd9/latest/${baseCurrency}`)
-      .then((res) => res.json())
-      .then((res) => {
-        setData(res.conversion_rates);
-      });
+  const fetchCurrencyData = useCallback(async () => {
+    if (!baseCurrency) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const apiKey = import.meta.env.VITE_EXCHANGE_RATE_API_KEY;
+      if (!apiKey) {
+        throw new Error("API key not found. Please check your environment variables.");
+      }
+
+      const response = await fetch(
+        `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${baseCurrency}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.result === "error") {
+        throw new Error(result["error-type"] || "Unknown API error");
+      }
+
+      setData(result.conversion_rates || {});
+      setLastUpdated(new Date().toLocaleString());
+    } catch (err) {
+      console.error("Currency fetch error:", err);
+      setError(err.message);
+      setData({});
+    } finally {
+      setLoading(false);
+    }
   }, [baseCurrency]);
 
-  return data; // returns an object like { USD: 1, INR: 83.3, EUR: 0.91 }
+  useEffect(() => {
+    fetchCurrencyData();
+  }, [fetchCurrencyData]);
+
+  return { data, loading, error, lastUpdated, refetch: fetchCurrencyData };
 }
 
 export default useCurrencyInfo;
