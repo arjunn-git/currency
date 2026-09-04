@@ -6,7 +6,6 @@ import {
   Check,
   TrendingUp,
   Clock,
-  Sparkles,
   AlertCircle,
 } from "lucide-react";
 import Input from "./components/Input";
@@ -97,18 +96,13 @@ function App() {
           
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 sm:p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-2xl shadow-md">
-                <Sparkles size={22} />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-sm">
-                  Currency Converter
-                </h1>
-                <p className="text-xs text-blue-100 font-medium flex items-center gap-1">
-                  <TrendingUp size={12} /> Live exchange rates
-                </p>
-              </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-sm">
+                Currency Converter
+              </h1>
+              <p className="text-xs text-blue-100 font-medium flex items-center gap-1">
+                <TrendingUp size={12} /> Live exchange rates
+              </p>
             </div>
 
             {/* Refresh Button */}
