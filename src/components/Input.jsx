@@ -1,59 +1,78 @@
-import React, { useId } from 'react'
+import React, { useId } from "react";
+import CurrencyPicker from "./CurrencyPicker";
 
 function Input({
-    label,
-    amount,
-    onAmountChange,
-    onCurrencyChange,
-    currencyOptions = [],
-    selectedCurrency = "usd",
-    amountDisabled = false,
-    currencyDisabled = false,
-    disabled = false,
-    className = "",
+  label,
+  amount,
+  onAmountChange,
+  onCurrencyChange,
+  currencyOptions = [],
+  selectedCurrency = "usd",
+  amountDisabled = false,
+  currencyDisabled = false,
+  disabled = false,
+  className = "",
 }) {
+  const amountInputId = useId();
+  const isInputDisabled = disabled || amountDisabled;
+  const isSelectDisabled = disabled || currencyDisabled;
 
-    const amountInputId = useId();
-    const isDisabled = disabled || amountDisabled;
-    const isCurrencyDisabled = disabled || currencyDisabled;
+  return (
+    <div
+      className={`bg-white/80 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-lg border border-white/40 transition-all duration-200 hover:shadow-xl ${
+        disabled ? "opacity-70" : ""
+      } ${className}`}
+    >
+      <div className="flex justify-between items-center mb-2">
+        <label
+          htmlFor={amountInputId}
+          className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider"
+        >
+          {label}
+        </label>
+        {amountDisabled && (
+          <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+            Converted Result
+          </span>
+        )}
+      </div>
 
-    return (
-        <div className={`bg-white/90 backdrop-blur-sm p-3 sm:p-4 rounded-lg sm:rounded-xl text-sm flex flex-col sm:flex-row gap-3 shadow-lg border border-white/20 ${className} ${isDisabled ? 'opacity-60' : ''} transition-all duration-200`}>
-            <div className="w-full sm:w-1/2 pr-0 sm:pr-3 min-w-0">
-                <label htmlFor={amountInputId} className="text-gray-700 mb-2 sm:mb-3 inline-block font-semibold text-sm sm:text-base">
-                    {label}
-                </label>
-                <input
-                    id={amountInputId}
-                    className="outline-none w-full bg-transparent py-1.5 sm:py-2 text-base sm:text-lg font-medium disabled:cursor-not-allowed placeholder-gray-400"
-                    type="number"
-                    placeholder="0.00"
-                    disabled={isDisabled}
-                    value={amount}
-                    onChange={(e) => onAmountChange && onAmountChange(Number(e.target.value))}
-                    min="0"
-                    step="0.01"
-                />
-            </div>
-            <div className="w-full sm:w-1/2 flex flex-col justify-end text-left sm:text-right pl-0 sm:pl-3 min-w-0">
-                <p className="text-gray-700 mb-2 sm:mb-3 w-full font-semibold text-sm sm:text-base">Currency</p>
-                <select
-                    className="rounded-md sm:rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 cursor-pointer outline-none disabled:cursor-not-allowed disabled:opacity-50 hover:bg-gray-100 transition-colors font-medium text-sm sm:text-base shadow-sm w-full"
-                    value={selectedCurrency}
-                    onChange={(e) => onCurrencyChange && onCurrencyChange(e.target.value)}
-                    disabled={isCurrencyDisabled}
-                >
-
-                    {currencyOptions.map((currency) => (
-                        <option key={currency} value={currency} className="font-medium">
-                            {currency.toUpperCase()}
-                        </option>
-                    ))}
-
-                </select>
-            </div>
+      <div className="flex items-center gap-3">
+        {/* Number Input */}
+        <div className="flex-1 min-w-0">
+          <input
+            id={amountInputId}
+            type="number"
+            placeholder="0.00"
+            disabled={isInputDisabled}
+            value={amount === "" || amount === 0 ? (amountDisabled ? "0" : amount) : amount}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") {
+                onAmountChange && onAmountChange("");
+              } else {
+                const num = parseFloat(val);
+                onAmountChange && onAmountChange(isNaN(num) ? 0 : num);
+              }
+            }}
+            min="0"
+            step="any"
+            className="w-full bg-transparent text-xl sm:text-2xl font-bold text-gray-900 outline-none placeholder-gray-400 disabled:cursor-not-allowed tracking-tight"
+          />
         </div>
-    );
+
+        {/* Currency Picker Button */}
+        <div className="w-[145px] sm:w-[170px] shrink-0">
+          <CurrencyPicker
+            selectedCurrency={selectedCurrency}
+            onSelect={(curr) => onCurrencyChange && onCurrencyChange(curr)}
+            currencyOptions={currencyOptions}
+            disabled={isSelectDisabled}
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Input;
