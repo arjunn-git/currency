@@ -10,8 +10,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Input from "./components/Input";
+import FlagIcon from "./components/FlagIcon";
 import useCurrencyInfo from "./hooks/useCurrencyinfo";
-import { POPULAR_PAIRS, getCurrencyMeta } from "./data/currencies";
+import { POPULAR_PAIRS } from "./data/currencies";
 import "./App.css";
 import src from "./assets/images/bg.jpg";
 
@@ -82,9 +83,6 @@ function App() {
     }).format(num);
   };
 
-  const fromMeta = getCurrencyMeta(from);
-  const toMeta = getCurrencyMeta(to);
-
   return (
     <div
       className="w-full min-h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-3 sm:px-4 py-8 relative selection:bg-blue-500 selection:text-white"
@@ -146,13 +144,15 @@ function App() {
                     key={`${pair.from}-${pair.to}`}
                     type="button"
                     onClick={() => selectPopularPair(pair.from, pair.to)}
-                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all ${
+                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                       isActive
                         ? "bg-white text-blue-900 shadow font-bold scale-105"
                         : "bg-white/20 hover:bg-white/30 text-white border border-white/20"
                     }`}
                   >
-                    {pair.from} → {pair.to}
+                    <FlagIcon currencyCode={pair.from} className="w-4 h-2.5" />
+                    <span>{pair.from} → {pair.to}</span>
+                    <FlagIcon currencyCode={pair.to} className="w-4 h-2.5" />
                   </button>
                 );
               })}
@@ -208,10 +208,12 @@ function App() {
               <div className="mb-4 p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 text-white shadow-inner">
                 <div className="flex justify-between items-center text-xs sm:text-sm font-semibold mb-1">
                   <span className="flex items-center gap-1.5">
-                    <span>{fromMeta.flag}</span> 1 {from.toUpperCase()} =
+                    <FlagIcon currencyCode={from} className="w-5 h-3.5" />
+                    <span>1 {from.toUpperCase()} =</span>
                   </span>
-                  <span className="font-bold text-blue-100">
-                    {formatNumber(unitRate)} {to.toUpperCase()} {toMeta.flag}
+                  <span className="font-bold text-blue-100 flex items-center gap-1.5">
+                    <span>{formatNumber(unitRate)} {to.toUpperCase()}</span>
+                    <FlagIcon currencyCode={to} className="w-5 h-3.5" />
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] text-white/70">
@@ -228,7 +230,7 @@ function App() {
               <button
                 type="button"
                 onClick={copyToClipboard}
-                className="w-full py-2.5 px-4 mb-3 bg-white/90 hover:bg-white text-gray-800 rounded-xl font-semibold text-sm transition-all duration-150 shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 mb-3 bg-white/90 hover:bg-white text-gray-800 rounded-xl font-semibold text-sm transition-all duration-150 shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {copied ? (
                   <>
