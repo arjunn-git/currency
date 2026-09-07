@@ -14,7 +14,6 @@ function Input({
   className = "",
 }) {
   const amountInputId = useId();
-  const isInputDisabled = disabled || amountDisabled;
   const isSelectDisabled = disabled || currencyDisabled;
 
   return (
@@ -42,17 +41,14 @@ function Input({
         <div className="flex-1 min-w-0">
           <input
             id={amountInputId}
-            type="number"
+            type={amountDisabled ? "text" : "number"}
+            readOnly={amountDisabled}
             placeholder="0.00"
-            disabled={isInputDisabled}
-            value={amount === "" || amount === 0 ? (amountDisabled ? "0" : amount) : amount}
+            disabled={disabled}
+            value={amount !== undefined && amount !== null ? amount : ""}
             onChange={(e) => {
-              const val = e.target.value;
-              if (val === "") {
-                onAmountChange && onAmountChange("");
-              } else {
-                const num = parseFloat(val);
-                onAmountChange && onAmountChange(isNaN(num) ? 0 : num);
+              if (onAmountChange) {
+                onAmountChange(e.target.value);
               }
             }}
             min="0"

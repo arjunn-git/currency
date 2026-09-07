@@ -32,15 +32,16 @@ function App() {
 
   // Real-time instantaneous conversion calculation
   const convertedAmount = useMemo(() => {
-    if (!currencyInfo[to] || amount === "" || Number(amount) <= 0) return 0;
-    return Number(amount) * currencyInfo[to];
+    const num = parseFloat(amount);
+    if (!currencyInfo[to] || isNaN(num) || num <= 0) return 0;
+    return num * currencyInfo[to];
   }, [amount, to, currencyInfo]);
 
   // Single unit exchange rate
   const unitRate = currencyInfo[to] || 0;
   const inverseUnitRate = unitRate > 0 ? 1 / unitRate : 0;
 
-  const isConversionReady = Boolean(currencyInfo[to] && Number(amount) > 0);
+  const isConversionReady = Boolean(currencyInfo[to] && parseFloat(amount) > 0);
 
   const handleAmountChange = (val) => {
     setAmount(val);
