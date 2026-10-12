@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React, { useId, memo } from "react";
 import CurrencyPicker from "./CurrencyPicker";
 
 function Input({
@@ -18,7 +18,7 @@ function Input({
 
   return (
     <div
-      className={`bg-white/80 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-lg border border-white/40 transition-all duration-200 hover:shadow-xl ${
+      className={`bg-white/85 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-lg border border-white/40 transition-shadow duration-150 hover:shadow-xl will-change-transform ${
         disabled ? "opacity-70" : ""
       } ${className}`}
     >
@@ -71,4 +71,4 @@ function Input({
   );
 }
 
-export default Input;
+export default memo(Input);

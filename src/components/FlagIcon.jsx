@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 
 const SPECIAL_FLAGS = {
   EUR: "eu",
@@ -10,7 +10,7 @@ const SPECIAL_FLAGS = {
   BTC: null,
 };
 
-export default function FlagIcon({ currencyCode, className = "w-6 h-4" }) {
+function FlagIcon({ currencyCode, className = "w-6 h-4" }) {
   const [error, setError] = useState(false);
   const code = (currencyCode || "").toUpperCase();
 
@@ -37,6 +37,11 @@ export default function FlagIcon({ currencyCode, className = "w-6 h-4" }) {
       className={`inline-block object-cover rounded shadow-xs border border-black/10 shrink-0 ${className}`}
       onError={() => setError(true)}
       loading="lazy"
+      decoding="async"
+      width={24}
+      height={16}
     />
   );
 }
+
+export default memo(FlagIcon);

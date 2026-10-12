@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { Bell, Check, Send } from "lucide-react";
 
-export default function RateAlertCard({ from, to }) {
+function RateAlertCard({ from, to }) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -61,3 +61,5 @@ export default function RateAlertCard({ from, to }) {
     </div>
   );
 }
+
+export default memo(RateAlertCard);

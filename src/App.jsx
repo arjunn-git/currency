@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import {
   ArrowUpDown,
   RefreshCw,
@@ -48,37 +48,39 @@ function App() {
 
   const isConversionReady = Boolean(currencyInfo[to] && parseFloat(amount) > 0);
 
-  const handleAmountChange = (val) => {
+  const handleAmountChange = useCallback((val) => {
     setAmount(val);
-  };
+  }, []);
 
-  const swap = () => {
+  const swap = useCallback(() => {
     setIsSwapping(true);
-    setTimeout(() => setIsSwapping(false), 300);
-    setFrom(to);
-    setTo(from);
-  };
+    setTimeout(() => setIsSwapping(false), 250);
+    setFrom((prevFrom) => {
+      setTo(prevFrom);
+      return to;
+    });
+  }, [to]);
 
-  const selectPopularPair = (pFrom, pTo) => {
+  const selectPopularPair = useCallback((pFrom, pTo) => {
     setFrom(pFrom.toLowerCase());
     setTo(pTo.toLowerCase());
-  };
+  }, []);
 
-  const copyToClipboard = async () => {
+  const copyToClipboard = useCallback(async () => {
     if (!isConversionReady) return;
 
     try {
       const formatted = `${formatNumber(convertedAmount)} ${to.toUpperCase()}`;
       await navigator.clipboard.writeText(formatted);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 1800);
     } catch (err) {
       console.error("Failed to copy: ", err);
     }
-  };
+  }, [isConversionReady, convertedAmount, to]);
 
   // Format currency numbers nicely with locale commas
-  const formatNumber = (num) => {
+  const formatNumber = useCallback((num) => {
     if (!num || isNaN(num)) return "0.00";
     if (num < 0.0001) return num.toFixed(6);
     if (num < 1) return num.toFixed(4);
@@ -86,19 +88,19 @@ function App() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 4,
     }).format(num);
-  };
+  }, []);
 
   return (
     <div
       className="w-full min-h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-3 sm:px-4 py-8 relative selection:bg-blue-500 selection:text-white"
       style={{
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)), url(${src})`,
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.82)), url(${src})`,
       }}
     >
       {/* Main Container */}
       <div className="w-full max-w-lg">
         {/* Card */}
-        <div className="backdrop-blur-xl bg-white/25 rounded-3xl p-5 sm:p-7 shadow-2xl border border-white/30 ring-1 ring-black/5 transition-all">
+        <div className="backdrop-blur-md bg-white/25 rounded-3xl p-5 sm:p-7 shadow-2xl border border-white/30 ring-1 ring-black/5 transition-shadow duration-150 transform-gpu will-change-transform">
           
           {/* Header */}
           <div className="flex justify-between items-center mb-6">

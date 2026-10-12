@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, memo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Search, X, Check, ChevronDown } from "lucide-react";
 import { CURRENCIES, getCurrencyMeta } from "../data/currencies";
 import FlagIcon from "./FlagIcon";
 
-export default function CurrencyPicker({
+const PAGE_SIZE = 30;
+
+function CurrencyPicker({
   selectedCurrency,
   onSelect,
   currencyOptions = [],
@@ -12,6 +14,7 @@ export default function CurrencyPicker({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const inputRef = useRef(null);
 
   const selectedMeta = getCurrencyMeta(selectedCurrency);
@@ -19,21 +22,24 @@ export default function CurrencyPicker({
   // Auto-focus search input when opened
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      document.body.style.overflow = "hidden"; // Prevent background scroll
+      setVisibleCount(PAGE_SIZE);
+      const timer = setTimeout(() => inputRef.current?.focus(), 30);
+      document.body.style.overflow = "hidden";
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = "";
+      };
     } else {
       setSearch("");
       document.body.style.overflow = "";
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
   // Handle ESC key to close
   useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape") {
         setIsOpen(false);
       }
     };
@@ -41,8 +47,9 @@ export default function CurrencyPicker({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
-  // Filter currency list based on search query
+  // Filter currency list based on search query (only when modal is open)
   const filteredOptions = useMemo(() => {
+    if (!isOpen) return [];
     const q = search.trim().toLowerCase();
     const options = currencyOptions.length > 0 ? currencyOptions : Object.keys(CURRENCIES);
 
@@ -54,7 +61,19 @@ export default function CurrencyPicker({
       const name = meta?.name?.toLowerCase() || "";
       return lowerCode.includes(q) || name.includes(q);
     });
-  }, [search, currencyOptions]);
+  }, [isOpen, search, currencyOptions]);
+
+  // Load more items as user scrolls down
+  const handleScroll = useCallback((e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollTop + clientHeight >= scrollHeight - 120) {
+      setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredOptions.length));
+    }
+  }, [filteredOptions.length]);
+
+  const displayedOptions = useMemo(() => {
+    return filteredOptions.slice(0, visibleCount);
+  }, [filteredOptions, visibleCount]);
 
   const modalContent = isOpen ? (
     <div
@@ -78,7 +97,7 @@ export default function CurrencyPicker({
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -87,20 +106,26 @@ export default function CurrencyPicker({
         {/* Search Bar */}
         <div className="p-3 border-b border-gray-100 bg-gray-50/60">
           <div className="relative flex items-center">
-            <Search size={18} className="absolute left-3 text-gray-400" />
+            <Search size={18} className="absolute left-3 text-gray-400 pointer-events-none" />
             <input
               ref={inputRef}
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setVisibleCount(PAGE_SIZE);
+              }}
               placeholder="Search by code, country, or name..."
               className="w-full pl-9 pr-8 py-2 bg-white text-sm rounded-xl border border-gray-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-800 placeholder-gray-400"
             />
             {search && (
               <button
                 type="button"
-                onClick={() => setSearch("")}
-                className="absolute right-2.5 text-gray-400 hover:text-gray-600"
+                onClick={() => {
+                  setSearch("");
+                  setVisibleCount(PAGE_SIZE);
+                }}
+                className="absolute right-2.5 text-gray-400 hover:text-gray-600 cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -108,14 +133,17 @@ export default function CurrencyPicker({
           </div>
         </div>
 
-        {/* Currencies List */}
-        <div className="overflow-y-auto p-2 divide-y divide-gray-50 flex-1">
+        {/* Currencies List (Paginated / Virtualized for 60fps performance) */}
+        <div
+          onScroll={handleScroll}
+          className="overflow-y-auto p-2 divide-y divide-gray-50 flex-1 max-h-[50vh] overscroll-contain"
+        >
           {filteredOptions.length === 0 ? (
             <div className="text-center py-10 text-gray-400 text-sm">
               No currencies match "{search}"
             </div>
           ) : (
-            filteredOptions.map((code) => {
+            displayedOptions.map((code) => {
               const upper = code.toUpperCase();
               const meta = getCurrencyMeta(code);
               const isSelected = upper === selectedCurrency.toUpperCase();
@@ -128,7 +156,7 @@ export default function CurrencyPicker({
                     onSelect(code.toLowerCase());
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-150 ${
+                  className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-colors duration-100 cursor-pointer ${
                     isSelected
                       ? "bg-blue-50 text-blue-900 font-semibold"
                       : "hover:bg-gray-50 text-gray-800"
@@ -170,7 +198,7 @@ export default function CurrencyPicker({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(true)}
-        className="flex items-center justify-between gap-2 px-3 py-2 bg-white/95 hover:bg-white text-gray-800 rounded-xl border border-gray-200/90 shadow-sm hover:shadow transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed group w-full text-left"
+        className="flex items-center justify-between gap-2 px-3 py-2 bg-white/95 hover:bg-white text-gray-800 rounded-xl border border-gray-200/90 shadow-sm hover:shadow transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed group w-full text-left cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <FlagIcon currencyCode={selectedCurrency} className="w-6 h-4" />
@@ -189,8 +217,10 @@ export default function CurrencyPicker({
         />
       </button>
 
-      {/* Render modal directly into document.body to prevent stacking context clipping */}
+      {/* Render modal directly into document.body */}
       {typeof document !== "undefined" && createPortal(modalContent, document.body)}
     </>
   );
 }
+
+export default memo(CurrencyPicker);

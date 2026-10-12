@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo } from "react";
 import { ExternalLink, ShieldCheck, Zap } from "lucide-react";
 
-export default function TransferAffiliate({ from, to, amount, convertedAmount }) {
+function TransferAffiliate({ from, to, amount, convertedAmount }) {
   const fromCode = (from || "USD").toUpperCase();
   const toCode = (to || "INR").toUpperCase();
   const parsedAmount = parseFloat(amount) || 1;
@@ -49,3 +49,5 @@ export default function TransferAffiliate({ from, to, amount, convertedAmount })
     </div>
   );
 }
+
+export default memo(TransferAffiliate);

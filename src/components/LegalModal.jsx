@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { X, Shield, FileText, HelpCircle, Mail } from "lucide-react";
 
-export default function LegalModal() {
+function LegalModal() {
   const [activeTab, setActiveTab] = useState(null);
 
   const tabs = {
@@ -142,3 +142,5 @@ export default function LegalModal() {
     </>
   );
 }
+
+export default memo(LegalModal);

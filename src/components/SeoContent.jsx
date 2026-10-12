@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { ChevronDown, HelpCircle, BookOpen, Globe } from "lucide-react";
 
-export default function SeoContent() {
+function SeoContent() {
   const [openFaq, setOpenFaq] = useState(null);
 
   const faqs = [
@@ -94,3 +94,5 @@ export default function SeoContent() {
     </section>
   );
 }
+
+export default memo(SeoContent);
