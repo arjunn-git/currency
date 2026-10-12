@@ -1,76 +1,47 @@
 import React, { useState, memo } from "react";
-import { Bell, Check, Send, Loader2 } from "lucide-react";
+import { Bell, Check, Send } from "lucide-react";
 
 function RateAlertCard({ from = "USD", to = "INR", currentRate }) {
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const fromCode = from.toUpperCase();
   const toCode = to.toUpperCase();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) return;
+  const handleSubmit = (e) => {
+    if (!email || !email.includes("@")) {
+      e.preventDefault();
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
 
-    setIsSubmitting(true);
     setErrorMessage("");
 
+    // Persist locally immediately
     try {
-      // Direct live submission to Arjun's inbox via FormSubmit secure token
-      const response = await fetch("https://formsubmit.co/ajax/75caf4c22751ef658407d9d664100615", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          _subject: `🔔 Rate Alert: 1 ${fromCode} → ${toCode} (${email})`,
-          email: email,
-          _replyto: email,
-          Live_Website_URL: "https://arjunn-git.github.io/currency/",
-          Currency_Pair: `${fromCode} to ${toCode}`,
-          Current_Live_Rate: currentRate ? `1 ${fromCode} = ${currentRate} ${toCode}` : "Live rate",
-          Requested_At: new Date().toLocaleString(),
-          _template: "table",
-          _captcha: "false",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Service temporarily unavailable. Please try again.");
-      }
-
-      // Also persist locally for fast client caching
-      try {
-        const key = `alert_sub_${fromCode}_${toCode}`;
-        localStorage.setItem(key, JSON.stringify({ email, date: Date.now() }));
-      } catch {
-        // Ignore storage exceptions
-      }
-
-      setSubmitted(true);
-      setEmail("");
-      setTimeout(() => setSubmitted(false), 6000);
-    } catch (err) {
-      console.error("Alert submission error:", err);
-      // Even if network fails, save locally as fallback
-      try {
-        const offlineQueue = JSON.parse(localStorage.getItem("offline_alerts") || "[]");
-        offlineQueue.push({ email, pair: `${fromCode}-${toCode}`, date: Date.now() });
-        localStorage.setItem("offline_alerts", JSON.stringify(offlineQueue));
-        setSubmitted(true);
-      } catch {
-        setErrorMessage("Could not submit. Please check your internet connection.");
-      }
-    } finally {
-      setIsSubmitting(false);
+      const key = `alert_sub_${fromCode}_${toCode}`;
+      localStorage.setItem(key, JSON.stringify({ email, pair: `${fromCode}-${toCode}`, date: Date.now() }));
+    } catch {
+      // Ignore storage exceptions
     }
+
+    // Instantly transition to confirmed screen
+    setSubmitted(true);
+    setEmail("");
+    setTimeout(() => setSubmitted(false), 6000);
   };
 
   return (
     <div className="w-full mt-3 p-3.5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 text-white shadow-md">
+      {/* Hidden iframe for background form dispatch */}
+      <iframe
+        name="alert_hidden_frame"
+        id="alert_hidden_frame"
+        title="alert_frame"
+        style={{ display: "none" }}
+      />
+
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-1.5 text-xs font-bold text-blue-100">
           <Bell size={13} className="text-yellow-300 fill-yellow-300" />
@@ -91,32 +62,36 @@ function RateAlertCard({ from = "USD", to = "INR", currentRate }) {
           <span>Alert registered! You'll receive updates for {fromCode} → {toCode}.</span>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+        <form
+          target="alert_hidden_frame"
+          action="https://formsubmit.co/75caf4c22751ef658407d9d664100615"
+          method="POST"
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row gap-2"
+        >
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_subject" value={`🔔 Rate Alert: 1 ${fromCode} → ${toCode} (${email})`} />
+          <input type="hidden" name="Live_Website_URL" value="https://arjunn-git.github.io/currency/" />
+          <input type="hidden" name="Currency_Pair" value={`${fromCode} to ${toCode}`} />
+          <input type="hidden" name="Current_Live_Rate" value={currentRate ? `1 ${fromCode} = ${currentRate} ${toCode}` : "Live rate"} />
+          <input type="hidden" name="_replyto" value={email} />
+
           <input
             type="email"
+            name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email for rate alerts"
             required
-            disabled={isSubmitting}
-            className="flex-1 px-3 py-1.5 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/50 text-xs focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50"
+            className="flex-1 px-3 py-1.5 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/50 text-xs focus:outline-none focus:ring-2 focus:ring-white/50"
           />
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="px-3.5 py-1.5 bg-white text-blue-900 hover:bg-blue-50 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow disabled:opacity-60"
+            className="px-3.5 py-1.5 bg-white text-blue-900 hover:bg-blue-50 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={13} className="animate-spin text-blue-900" />
-                <span>Setting...</span>
-              </>
-            ) : (
-              <>
-                <Send size={12} />
-                <span>Alert Me</span>
-              </>
-            )}
+            <Send size={12} />
+            <span>Alert Me</span>
           </button>
         </form>
       )}

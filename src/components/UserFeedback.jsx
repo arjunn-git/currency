@@ -1,5 +1,5 @@
 import React, { useState, memo } from "react";
-import { MessageSquarePlus, Star, X, Send, Check, Loader2, User, Mail } from "lucide-react";
+import { MessageSquarePlus, Star, X, Send, Check, User, Mail, ExternalLink } from "lucide-react";
 
 function UserFeedback() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,73 +9,62 @@ function UserFeedback() {
   const [feedback, setFeedback] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = (e) => {
     if (!feedback.trim() || !name.trim() || !email.trim()) {
+      e.preventDefault();
       setError("Please fill out your name, email, and feedback message.");
       return;
     }
 
-    setIsSubmitting(true);
+    // Save locally immediately so no user feedback is ever lost
+    try {
+      const stored = JSON.parse(localStorage.getItem("all_user_feedbacks") || "[]");
+      stored.push({
+        name,
+        email,
+        rating,
+        category,
+        feedback,
+        date: new Date().toISOString(),
+      });
+      localStorage.setItem("all_user_feedbacks", JSON.stringify(stored));
+    } catch {
+      // Ignore storage errors
+    }
+
+    // Instantly transition to success screen without waiting or hanging
+    setIsSubmitted(true);
     setError("");
 
-    const liveUrl = "https://arjunn-git.github.io/currency/";
-
-    try {
-      const response = await fetch("https://formsubmit.co/ajax/75caf4c22751ef658407d9d664100615", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          _subject: `💬 Feedback (${rating} Stars) from ${name} [${category}]`,
-          name: name,
-          email: email,
-          _replyto: email,
-          Live_Website_URL: liveUrl,
-          Rating: `${rating} / 5 Stars`,
-          Category: category,
-          User_Feedback: feedback,
-          Submitted_At: new Date().toLocaleString(),
-          _template: "table",
-          _captcha: "false",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send. Please try again.");
-      }
-
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setIsOpen(false);
-        setFeedback("");
-        setName("");
-        setEmail("");
-        setRating(5);
-      }, 3500);
-    } catch (err) {
-      console.error("Feedback error:", err);
-      setError("Unable to submit right now. You can email us directly at arjuntaneja204@gmail.com!");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setIsOpen(false);
+      setFeedback("");
+      setName("");
+      setEmail("");
+      setRating(5);
+    }, 3500);
   };
 
   return (
     <>
+      {/* Hidden iframe handles form submission in background without page reload or hanging */}
+      <iframe
+        name="feedback_hidden_frame"
+        id="feedback_hidden_frame"
+        title="feedback_frame"
+        style={{ display: "none" }}
+      />
+
       {/* Feedback Trigger Button */}
       <div className="flex justify-center mt-3">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-semibold backdrop-blur-md border border-white/25 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-semibold backdrop-blur-md border border-white/25 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
         >
           <MessageSquarePlus size={14} className="text-amber-300" />
           <span>Suggest a Feature / Give Feedback</span>
@@ -114,11 +103,26 @@ function UserFeedback() {
                 </div>
                 <h4 className="text-base font-bold text-gray-900">Thank You, {name}!</h4>
                 <p className="text-xs text-gray-600 max-w-xs">
-                  Your feedback and suggestions were sent directly to Arjun's inbox. We really appreciate your input!
+                  Your feedback was recorded and dispatched directly to Arjun's inbox. We appreciate your suggestion!
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-3.5">
+              <form
+                target="feedback_hidden_frame"
+                action="https://formsubmit.co/75caf4c22751ef658407d9d664100615"
+                method="POST"
+                onSubmit={handleSubmit}
+                className="space-y-3.5"
+              >
+                {/* FormSubmit Configuration Fields */}
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
+                <input type="hidden" name="_subject" value={`💬 Feedback (${rating} Stars) from ${name || "Visitor"} [${category}]`} />
+                <input type="hidden" name="Live_Website_URL" value="https://arjunn-git.github.io/currency/" />
+                <input type="hidden" name="Rating" value={`${rating} / 5 Stars`} />
+                <input type="hidden" name="Category" value={category} />
+                <input type="hidden" name="_replyto" value={email} />
+
                 {/* Star Rating */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -150,7 +154,7 @@ function UserFeedback() {
                   </div>
                 </div>
 
-                {/* Name & Email Inputs (Required so Arjun gets real identity) */}
+                {/* Name & Email Inputs */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -160,9 +164,10 @@ function UserFeedback() {
                       <User size={14} className="absolute left-2.5 text-gray-400 pointer-events-none" />
                       <input
                         type="text"
+                        name="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="John Doe"
+                        placeholder="e.g. Karan"
                         required
                         className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 text-gray-800"
                       />
@@ -177,9 +182,10 @@ function UserFeedback() {
                       <Mail size={14} className="absolute left-2.5 text-gray-400 pointer-events-none" />
                       <input
                         type="email"
+                        name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="john@example.com"
+                        placeholder="you@gmail.com"
                         required
                         className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 text-gray-800"
                       />
@@ -197,9 +203,9 @@ function UserFeedback() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full px-3 py-1.5 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-800 outline-none focus:border-blue-500 focus:bg-white"
                   >
-                    <option value="Feature Suggestion">💡 Feature Suggestion (e.g. historical charts)</option>
+                    <option value="Feature Suggestion">💡 Feature Suggestion (e.g. multi currencies)</option>
                     <option value="UI & Speed Improvement">⚡ UI Speed or Design Improvement</option>
-                    <option value="Exchange Rate Question">💱 Exchange Rate Question / Missing Currency</option>
+                    <option value="Exchange Rate Question">💱 Exchange Rate Question</option>
                     <option value="Bug Report">🐛 Bug Report</option>
                     <option value="General Feedback">💬 General Feedback</option>
                   </select>
@@ -212,9 +218,10 @@ function UserFeedback() {
                   </label>
                   <textarea
                     rows={3}
+                    name="message"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Tell us what features or changes you'd love to see on https://arjunn-git.github.io/currency/..."
+                    placeholder="Tell us what features or changes you'd love to see..."
                     required
                     className="w-full p-2.5 text-xs rounded-xl border border-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 text-gray-800 placeholder-gray-400 resize-none"
                   />
@@ -225,31 +232,31 @@ function UserFeedback() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setIsOpen(false)}
-                    className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors cursor-pointer"
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                  <a
+                    href="mailto:arjuntaneja204@gmail.com"
+                    className="text-[11px] text-gray-500 hover:text-blue-600 flex items-center gap-1 transition-colors"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 size={13} className="animate-spin" />
-                        <span>Sending...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send size={13} />
-                        <span>Submit Feedback</span>
-                      </>
-                    )}
-                  </button>
+                    <span>Or email directly</span>
+                    <ExternalLink size={11} />
+                  </a>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsOpen(false)}
+                      className="px-3.5 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Send size={13} />
+                      <span>Submit Feedback</span>
+                    </button>
+                  </div>
                 </div>
               </form>
             )}
