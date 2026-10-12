@@ -18,8 +18,8 @@ function RateAlertCard({ from = "USD", to = "INR", currentRate }) {
     setErrorMessage("");
 
     try {
-      // Direct live submission to Arjun's email via FormSubmit AJAX API
-      const response = await fetch("https://formsubmit.co/ajax/arjuntaneja204@gmail.com", {
+      // Direct live submission to Arjun's inbox via FormSubmit secure token
+      const response = await fetch("https://formsubmit.co/ajax/75caf4c22751ef658407d9d664100615", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
