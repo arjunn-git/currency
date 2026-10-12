@@ -108,22 +108,11 @@ function App() {
         
         {/* Sleek App Header */}
         <div className="flex items-center justify-between mb-3.5 px-1">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25 text-white font-bold text-sm border border-white/20 backdrop-blur-md">
-              💱
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-white tracking-tight drop-shadow-sm">
-                  Currency Converter
-                </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1 backdrop-blur-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live
-                </span>
-              </div>
-              <p className="text-[11px] text-blue-100/70 font-medium">Real-time mid-market rates</p>
-            </div>
+          <div>
+            <h1 className="text-lg sm:text-xl font-black text-white tracking-tight drop-shadow-sm">
+              Currency Converter
+            </h1>
+            <p className="text-xs text-blue-100/70 font-medium mt-0.5">Real-time mid-market rates</p>
           </div>
 
           {/* Refresh Button */}
