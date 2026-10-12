@@ -16,6 +16,7 @@ import TransferAffiliate from "./components/TransferAffiliate";
 import RateAlertCard from "./components/RateAlertCard";
 import AdBanner from "./components/AdBanner";
 import LegalModal from "./components/LegalModal";
+import SeoContent from "./components/SeoContent";
 import "./App.css";
 import src from "./assets/images/bg.jpg";
 
@@ -273,8 +274,11 @@ function App() {
         {/* Ad Banner placeholder / integration */}
         <AdBanner slot="1234567890" />
 
+        {/* Semantic SEO & FAQ Section for Google Ranking */}
+        <SeoContent />
+
         {/* Brand note / footer */}
-        <p className="text-center text-white/70 text-xs mt-3 drop-shadow">
+        <p className="text-center text-white/70 text-xs mt-6 drop-shadow">
           Real-Time Currency Converter • Free & Instant
         </p>
 

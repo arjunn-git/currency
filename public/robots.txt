@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://arjunn-git.github.io/currency/sitemap.xml

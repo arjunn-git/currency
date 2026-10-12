@@ -5,20 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#172554" />
-    <meta name="description" content="Convert currencies with current exchange-rate data. Compare popular currency pairs, swap currencies instantly, and copy your converted amount." />
-    <meta name="robots" content="index, follow" />
-    <meta name="author" content="Currency Converter" />
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>Live Currency Converter – Real-Time Foreign Exchange Rates & Fee Calculator</title>
+    <meta name="description" content="Free real-time currency converter with live mid-market exchange rates. Compare 160+ world currencies (USD, EUR, GBP, INR), calculate bank transfer fee savings, and swap instantly." />
+    <meta name="keywords" content="currency converter, live exchange rates, USD to INR, EUR to USD, forex rates, international money transfer, compare bank fees, money exchange calculator, live foreign exchange" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="author" content="Arjun / Currency Converter" />
+    <link rel="canonical" href="https://arjunn-git.github.io/currency/" />
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Live Currency Converter – Real-Time Foreign Exchange Rates & Fee Calculator" />
+    <meta property="og:description" content="Free real-time currency converter with live mid-market exchange rates. Compare 160+ world currencies, swap instantly, and avoid hidden bank fees." />
+    <meta property="og:url" content="https://arjunn-git.github.io/currency/" />
+    <meta property="og:site_name" content="Currency Converter" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Live Currency Converter – Real-Time Foreign Exchange Rates" />
+    <meta name="twitter:description" content="Free real-time currency converter with live mid-market rates across 160+ currencies. Swap instantly and calculate savings." />
+
+    <!-- Favicons -->
     <link rel="icon" type="image/png" href="%BASE_URL%favicon.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%favicon.png" />
+
+    <!-- Preconnect & Performance -->
     <link rel="preconnect" href="https://open.er-api.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <title>Currency Converter | Exchange Rates</title>
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Currency Converter | Exchange Rates" />
-    <meta property="og:description" content="Convert currencies with current exchange-rate data. Compare popular pairs and copy your result." />
-    <meta property="og:url" content="https://arjunn-git.github.io/currency/" />
-    <meta name="twitter:card" content="summary" />
+
+    <!-- Schema.org JSON-LD Structured Data: WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Live Currency Converter",
+      "url": "https://arjunn-git.github.io/currency/",
+      "description": "Convert foreign currencies instantly with real-time mid-market exchange rates and money transfer fee calculations across 160+ currencies.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <!-- Schema.org JSON-LD Structured Data: FAQPage (Enables Google Rich Snippets) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How often are live exchange rates updated?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Exchange rates are updated regularly directly from global financial markets and cached locally for fast, responsive calculation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the mid-market exchange rate?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The mid-market rate is the real midpoint between global buy and sell rates. Commercial banks usually add a 2% to 5% markup on top of this rate."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this currency converter free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, our currency calculator is 100% free with no sign-ups or subscriptions required."
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
