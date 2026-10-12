@@ -10,5 +10,18 @@ export default defineConfig(({ mode }) => {
   return {
     base,
     plugins: [react(), tailwindcss()],
+    build: {
+      target: 'esnext',
+      cssMinify: true,
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-icons': ['lucide-react'],
+          },
+        },
+      },
+    },
   }
 })
