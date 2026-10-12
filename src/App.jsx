@@ -96,12 +96,12 @@ function App() {
     <div
       className="w-full min-h-screen bg-[#070b14] text-slate-100 flex flex-col justify-between items-center px-3 sm:px-4 py-5 sm:py-8 relative overflow-x-hidden selection:bg-blue-600 selection:text-white bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: `linear-gradient(rgba(7, 11, 20, 0.78), rgba(7, 11, 20, 0.88)), url(${bgImage})`,
+        backgroundImage: `linear-gradient(rgba(10, 16, 30, 0.52), rgba(10, 16, 30, 0.68)), url(${bgImage})`,
       }}
     >
-      {/* High-performance CSS ambient glows (0ms load time, 120 FPS) */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[550px] h-[280px] bg-gradient-to-b from-blue-600/15 via-indigo-600/10 to-transparent blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-[350px] h-[350px] bg-indigo-600/10 blur-3xl pointer-events-none" />
+      {/* High-performance CSS ambient glows */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[550px] h-[280px] bg-gradient-to-b from-blue-600/20 via-indigo-600/10 to-transparent blur-3xl pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-[350px] h-[350px] bg-indigo-600/15 blur-3xl pointer-events-none" />
 
       {/* Main Container */}
       <div className="w-full max-w-md relative z-10 my-auto">
@@ -109,20 +109,20 @@ function App() {
         {/* Sleek App Header */}
         <div className="flex items-center justify-between mb-3.5 px-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-bold text-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25 text-white font-bold text-sm border border-white/20 backdrop-blur-md">
               💱
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-white tracking-tight">
+                <h1 className="text-base sm:text-lg font-black text-white tracking-tight drop-shadow-sm">
                   Currency Converter
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1 backdrop-blur-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Live
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium">Real-time mid-market rates</p>
+              <p className="text-[11px] text-blue-100/70 font-medium">Real-time mid-market rates</p>
             </div>
           </div>
 
@@ -132,7 +132,7 @@ function App() {
             onClick={() => refetch()}
             disabled={loading}
             title="Refresh exchange rates"
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 text-slate-300 hover:text-white transition-all active:scale-95 cursor-pointer shadow-sm disabled:opacity-50"
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-sm disabled:opacity-50"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
           </button>
@@ -140,16 +140,16 @@ function App() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-3 p-3 bg-red-950/80 border border-red-800/60 text-red-200 rounded-xl text-xs flex items-center gap-2">
+          <div className="mb-3 p-3 bg-red-950/80 border border-red-800/60 text-red-200 rounded-xl text-xs flex items-center gap-2 backdrop-blur-md">
             <span>{error}</span>
           </div>
         )}
 
-        {/* The Main Converter Card */}
-        <div className="bg-slate-900/90 border border-slate-800/90 rounded-3xl p-4 sm:p-5 shadow-2xl backdrop-blur-xl">
+        {/* The Main Frosted Glassmorphism Card */}
+        <div className="bg-slate-900/40 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 sm:p-5 shadow-[0_16px_40px_rgba(0,0,0,0.5)] ring-1 ring-white/10">
           
-          {/* Quick Popular Pairs Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-3 mb-3 scrollbar-none border-b border-slate-800/80">
+          {/* Quick Popular Pairs Chips (Scrollbar completely hidden) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-3 border-b border-white/10 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {POPULAR_PAIRS.map((pair) => {
               const isActive =
                 from.toUpperCase() === pair.from && to.toUpperCase() === pair.to;
@@ -160,12 +160,12 @@ function App() {
                   onClick={() => selectPopularPair(pair.from, pair.to)}
                   className={`text-[11px] px-2.5 py-1 rounded-lg font-semibold transition-all shrink-0 flex items-center gap-1 cursor-pointer ${
                     isActive
-                      ? "bg-blue-600 text-white shadow-sm shadow-blue-500/30 font-bold"
-                      : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/50"
+                      ? "bg-blue-600/90 text-white shadow-md shadow-blue-500/30 font-bold border border-blue-400/50"
+                      : "bg-white/10 hover:bg-white/20 text-white/90 border border-white/15 backdrop-blur-md"
                   }`}
                 >
                   <span>{pair.from}</span>
-                  <span className="text-slate-400">→</span>
+                  <span className="text-white/60">→</span>
                   <span>{pair.to}</span>
                 </button>
               );
@@ -189,13 +189,13 @@ function App() {
 
             {/* Centered Swap Button */}
             <div className="relative w-full h-4 my-2 flex justify-center items-center">
-              <div className="w-full border-t border-slate-800" />
+              <div className="w-full border-t border-white/10" />
               <button
                 type="button"
                 onClick={swap}
                 disabled={loading}
                 title="Swap currencies"
-                className={`absolute p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-blue-400 hover:text-blue-300 border border-slate-700 shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50 ${
+                className={`absolute p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/25 backdrop-blur-xl shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50 ${
                   isSwapping ? "rotate-180" : ""
                 }`}
               >
@@ -217,12 +217,12 @@ function App() {
             </div>
 
             {/* Instant Rate Summary & Copy Pill Bar */}
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-800 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 text-xs shadow-inner">
               <div className="flex flex-col min-w-0">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-blue-100/70">
                   Mid-Market Rate
                 </span>
-                <span className="font-bold text-white text-xs sm:text-sm truncate">
+                <span className="font-bold text-white text-xs sm:text-sm truncate drop-shadow-xs">
                   1 {from.toUpperCase()} = {formatNumber(unitRate)} {to.toUpperCase()}
                 </span>
               </div>
@@ -231,7 +231,7 @@ function App() {
                 <button
                   type="button"
                   onClick={copyToClipboard}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer shrink-0 border border-blue-400/40"
                 >
                   {copied ? (
                     <>
@@ -249,48 +249,48 @@ function App() {
             </div>
 
             {/* Status note */}
-            <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 px-1">
+            <div className="flex justify-between items-center text-[10px] text-blue-100/70 mt-2 px-1">
               <span>{loading ? "Updating..." : lastUpdated ? `Updated: ${lastUpdated}` : "Real-time rates"}</span>
               <span>160+ Currencies Supported</span>
             </div>
           </form>
         </div>
 
-        {/* Clean Secondary Utilities Bar (Fast, Compact & Uncrowded) */}
+        {/* Clean Secondary Utilities Bar (Frosted Glass Pills) */}
         <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-3.5 flex-wrap">
           <button
             type="button"
             onClick={() => setActiveModal("compare")}
-            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
           >
-            <Zap size={13} className="text-amber-400 fill-amber-400" />
+            <Zap size={13} className="text-amber-300 fill-amber-300" />
             <span>Compare Fees</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveModal("alert")}
-            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
           >
-            <Bell size={13} className="text-yellow-400" />
+            <Bell size={13} className="text-yellow-300" />
             <span>Rate Alert</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveModal("feedback")}
-            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
           >
-            <MessageSquarePlus size={13} className="text-blue-400" />
+            <MessageSquarePlus size={13} className="text-blue-300" />
             <span>Feedback</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveModal("faq")}
-            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
           >
-            <HelpCircle size={13} className="text-emerald-400" />
+            <HelpCircle size={13} className="text-emerald-300" />
             <span>FAQ & Info</span>
           </button>
         </div>

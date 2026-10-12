@@ -18,19 +18,19 @@ function Input({
 
   return (
     <div
-      className={`bg-slate-800/70 border border-slate-700/70 rounded-2xl p-3.5 sm:p-4 transition-all duration-150 hover:border-slate-600 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 ${
+      className={`bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 transition-all duration-150 focus-within:border-blue-400 focus-within:bg-white/15 focus-within:ring-2 focus-within:ring-blue-400/20 shadow-lg ${
         disabled ? "opacity-75" : ""
       } ${className}`}
     >
       <div className="flex justify-between items-center mb-1.5">
         <label
           htmlFor={amountInputId}
-          className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider"
+          className="text-[11px] sm:text-xs font-semibold text-blue-100/80 uppercase tracking-wider"
         >
           {label}
         </label>
         {amountDisabled && (
-          <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-semibold text-emerald-300 bg-emerald-500/20 border border-emerald-400/30 px-2 py-0.5 rounded-full backdrop-blur-sm">
             Converted Result
           </span>
         )}
@@ -53,7 +53,7 @@ function Input({
             }}
             min="0"
             step="any"
-            className="w-full bg-transparent text-xl sm:text-2xl font-black text-white outline-none placeholder-slate-500 disabled:cursor-not-allowed tracking-tight"
+            className="w-full bg-transparent text-xl sm:text-2xl font-black text-white outline-none placeholder-white/40 disabled:cursor-not-allowed tracking-tight drop-shadow-sm"
           />
         </div>
 
