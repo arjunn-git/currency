@@ -60,9 +60,12 @@ function LegalModal() {
           <p>
             Have feedback, feature requests, or partnership inquiries? Reach out to us anytime!
           </p>
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 font-medium">
-            support@yourdomain.com
-          </div>
+          <a
+            href="mailto:arjuntaneja204@gmail.com"
+            className="block p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-blue-900 font-medium transition-colors"
+          >
+            arjuntaneja204@gmail.com
+          </a>
           <p className="text-xs text-gray-500">
             We typically respond within 24–48 business hours.
           </p>

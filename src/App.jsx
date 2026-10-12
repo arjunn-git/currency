@@ -17,6 +17,7 @@ import RateAlertCard from "./components/RateAlertCard";
 import AdBanner from "./components/AdBanner";
 import LegalModal from "./components/LegalModal";
 import SeoContent from "./components/SeoContent";
+import UserFeedback from "./components/UserFeedback";
 import "./App.css";
 import src from "./assets/images/bg.jpg";
 
@@ -269,9 +270,16 @@ function App() {
             )}
 
             {/* Email Alert Lead Generation */}
-            <RateAlertCard from={from} to={to} />
+            <RateAlertCard
+              from={from}
+              to={to}
+              currentRate={formatNumber(unitRate)}
+            />
           </form>
         </div>
+
+        {/* User Feedback & Suggestions Widget */}
+        <UserFeedback />
 
         {/* Ad Banner placeholder / integration */}
         <AdBanner slot="1234567890" />
