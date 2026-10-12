@@ -1,118 +1,134 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const CACHE_KEY_PREFIX = "cc_rates_";
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const CACHE_KEY_PREFIX = "cc_rates_v2_";
+const CACHE_TTL_MS = 30 * 60 * 1000;
+const REQUEST_TIMEOUT_MS = 12_000;
+
+function formatProviderTime(value) {
+  if (!value) return null;
+  const date = typeof value === "number" ? new Date(value * 1000) : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function normalizeRates(rates) {
+  if (!rates || typeof rates !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(rates)
+      .filter(([, value]) => Number.isFinite(Number(value)) && Number(value) > 0)
+      .map(([code, value]) => [code.toLowerCase(), Number(value)])
+  );
+}
+
+function readCache(base) {
+  try {
+    const cached = JSON.parse(localStorage.getItem(`${CACHE_KEY_PREFIX}${base}`) || "null");
+    if (cached?.rates && Object.keys(cached.rates).length > 0) return cached;
+  } catch {
+    // Storage may be disabled or contain invalid JSON; continue without cache.
+  }
+  return null;
+}
 
 function useCurrencyInfo(baseCurrency) {
   const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-
+  const [isStale, setIsStale] = useState(false);
+  const requestId = useRef(0);
   const base = (baseCurrency || "usd").toLowerCase();
 
   const fetchCurrencyData = useCallback(async (forceRefresh = false) => {
-    if (!base) return;
+    const currentRequest = ++requestId.current;
+    const cached = readCache(base);
 
-    // 1. Check localStorage cache unless forceRefresh is true
-    if (!forceRefresh) {
-      try {
-        const cached = localStorage.getItem(`${CACHE_KEY_PREFIX}${base}`);
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          const isFresh = Date.now() - parsed.timestamp < CACHE_TTL_MS;
-          if (isFresh && parsed.rates && Object.keys(parsed.rates).length > 0) {
-            setData(parsed.rates);
-            setLastUpdated(parsed.lastUpdated);
-            return;
-          }
-        }
-      } catch {
-        // Ignore localStorage read errors
-      }
+    if (!forceRefresh && cached?.rates && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
+      setData(cached.rates);
+      setLastUpdated(cached.providerUpdatedAt || formatProviderTime(cached.fetchedAt));
+      setIsStale(false);
+      setError(null);
+      setLoading(false);
+      return;
     }
 
     setLoading(true);
     setError(null);
 
-    let rates = null;
-    let updateTime = null;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-    // 2. Try primary API (with key if available)
-    const apiKey = import.meta.env?.VITE_EXCHANGE_RATE_API_KEY;
-    if (apiKey) {
-      try {
-        const primaryRes = await fetch(
-          `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${base.toUpperCase()}`
-        );
-        if (primaryRes.ok) {
-          const primaryJson = await primaryRes.json();
-          if (primaryJson.result !== "error" && primaryJson.conversion_rates) {
-            rates = primaryJson.conversion_rates;
-            updateTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-          }
-        }
-      } catch {
-        // Fall back to open endpoint below
-      }
-    }
+    try {
+      // This public endpoint does not require a browser-exposed API key.
+      const response = await fetch(
+        `https://open.er-api.com/v6/latest/${base.toUpperCase()}`,
+        { signal: controller.signal, headers: { Accept: "application/json" } }
+      );
 
-    // 3. Fallback to open endpoint (no API key required)
-    if (!rates) {
-      try {
-        const openRes = await fetch(
-          `https://open.er-api.com/v6/latest/${base.toUpperCase()}`
-        );
-        if (openRes.ok) {
-          const openJson = await openRes.json();
-          if (openJson.result === "success" && openJson.rates) {
-            rates = openJson.rates;
-            updateTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-          }
-        }
-      } catch (err) {
-        console.error("Open API error:", err);
+      if (!response.ok) throw new Error(`Exchange-rate service returned ${response.status}.`);
+      const payload = await response.json();
+      if (payload.result !== "success" || !payload.rates) {
+        throw new Error("The exchange-rate service returned an invalid response.");
       }
-    }
 
-    // 4. Update state & cache
-    if (rates && Object.keys(rates).length > 0) {
-      // Normalize rate keys to lowercase for consistency
-      const normalized = {};
-      for (const [k, v] of Object.entries(rates)) {
-        normalized[k.toLowerCase()] = v;
+      const normalized = normalizeRates(payload.rates);
+      if (!Object.keys(normalized).length || !normalized[base]) {
+        throw new Error("No usable exchange rates were returned.");
       }
+
+      const providerUpdatedAt = formatProviderTime(payload.time_last_update_utc);
+      const providerNextUpdateAt = formatProviderTime(payload.time_next_update_utc);
+      const record = {
+        rates: normalized,
+        fetchedAt: Date.now(),
+        providerUpdatedAt,
+        providerNextUpdateAt,
+      };
+
+      if (currentRequest !== requestId.current) return;
       setData(normalized);
-      setLastUpdated(updateTime || "Just now");
-
+      setLastUpdated(providerUpdatedAt || "Time not provided by provider");
+      setIsStale(false);
+      setError(null);
       try {
-        localStorage.setItem(
-          `${CACHE_KEY_PREFIX}${base}`,
-          JSON.stringify({
-            rates: normalized,
-            lastUpdated: updateTime,
-            timestamp: Date.now(),
-          })
-        );
+        localStorage.setItem(`${CACHE_KEY_PREFIX}${base}`, JSON.stringify(record));
       } catch {
-        // Ignore localStorage write error
+        // Private browsing or storage limits should not prevent conversion.
       }
-    } else {
-      setError("Unable to fetch real-time rates. Please check your connection.");
+    } catch (fetchError) {
+      if (currentRequest !== requestId.current) return;
+      if (cached?.rates && Object.keys(cached.rates).length > 0) {
+        setData(cached.rates);
+        setLastUpdated(cached.providerUpdatedAt || formatProviderTime(cached.fetchedAt));
+        setIsStale(true);
+        setError("Couldn't refresh exchange rates. Showing saved rates, which may be out of date.");
+      } else {
+        setError(
+          fetchError.name === "AbortError"
+            ? "The exchange-rate request timed out. Please try again."
+            : "Unable to load exchange rates. Check your connection and try again."
+        );
+        setIsStale(false);
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      if (currentRequest === requestId.current) setLoading(false);
     }
-
-    setLoading(false);
   }, [base]);
 
   useEffect(() => {
     fetchCurrencyData();
+    return () => {
+      // Ignore late responses after the selected base currency changes or unmounts.
+      requestId.current += 1;
+    };
   }, [fetchCurrencyData]);
 
-  const refetch = useCallback(() => {
-    return fetchCurrencyData(true);
-  }, [fetchCurrencyData]);
-
-  return { data, loading, error, lastUpdated, refetch };
+  const refetch = useCallback(() => fetchCurrencyData(true), [fetchCurrencyData]);
+  return { data, loading, error, lastUpdated, isStale, refetch };
 }
 
 export default useCurrencyInfo;

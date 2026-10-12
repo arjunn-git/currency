@@ -156,3 +156,11 @@ This app uses the ExchangeRate-API (v6) which provides:
 - **Sponsorships**: $100-500+ per month depending on traffic
 
 Your currency converter has great potential! Start with free hosting, focus on user experience, then gradually implement monetization strategies.
+
+## Production and custom-domain notes
+
+- The app uses the provider's reported update time instead of showing the browser fetch time as the rate-update time.
+- A failed refresh can fall back to saved rates and explicitly warns users that those rates may be out of date.
+- The favicon is served from `public/favicon.png`, so Vite can include it correctly in the production build.
+- The default Vite base path remains `/currency/` for the current GitHub Pages project URL. For a custom domain, set `VITE_BASE_PATH=/` at build time and follow [CUSTOM-DOMAIN-DEPLOYMENT.md](./CUSTOM-DOMAIN-DEPLOYMENT.md).
+- Exchange rates are reference rates, not guaranteed transaction rates. Provider availability and update cadence may vary.

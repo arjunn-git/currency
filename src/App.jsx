@@ -12,6 +12,10 @@ import Input from "./components/Input";
 import FlagIcon from "./components/FlagIcon";
 import useCurrencyInfo from "./hooks/useCurrencyinfo";
 import { POPULAR_PAIRS } from "./data/currencies";
+import TransferAffiliate from "./components/TransferAffiliate";
+import RateAlertCard from "./components/RateAlertCard";
+import AdBanner from "./components/AdBanner";
+import LegalModal from "./components/LegalModal";
 import "./App.css";
 import src from "./assets/images/bg.jpg";
 
@@ -22,7 +26,7 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
-  const { data: currencyInfo, loading, error, lastUpdated, refetch } = useCurrencyInfo(from);
+  const { data: currencyInfo, loading, error, lastUpdated, isStale, refetch } = useCurrencyInfo(from);
 
   // Available currency options from API rates or default fallback
   const currencyOptions = useMemo(() => {
@@ -242,20 +246,40 @@ function App() {
             )}
 
             {/* Footer Status Bar */}
-            <div className="flex justify-between items-center text-[11px] text-blue-100 font-medium px-1">
-              <span className="flex items-center gap-1">
-                <Clock size={12} />
-                {loading ? "Updating rates..." : `Updated: ${lastUpdated || "Live"}`}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 text-[11px] text-blue-100 font-medium px-1">
+              <span className="flex items-center gap-1 min-w-0">
+                <Clock size={12} className="shrink-0" />
+                <span>{loading ? "Updating rates…" : lastUpdated ? `Provider update: ${lastUpdated}` : "Exchange rates"}</span>
+                {isStale && <span className="rounded-md bg-amber-300/20 border border-amber-200/30 px-1.5 py-0.5 text-amber-100">Saved rates</span>}
               </span>
               <span>160+ Currencies Supported</span>
             </div>
+
+            {/* Monetization: Remittance & Savings Partner */}
+            {isConversionReady && (
+              <TransferAffiliate
+                from={from}
+                to={to}
+                amount={amount}
+                convertedAmount={convertedAmount}
+              />
+            )}
+
+            {/* Email Alert Lead Generation */}
+            <RateAlertCard from={from} to={to} />
           </form>
         </div>
 
+        {/* Ad Banner placeholder / integration */}
+        <AdBanner slot="1234567890" />
+
         {/* Brand note / footer */}
-        <p className="text-center text-white/70 text-xs mt-4 drop-shadow">
+        <p className="text-center text-white/70 text-xs mt-3 drop-shadow">
           Real-Time Currency Converter • Free & Instant
         </p>
+
+        {/* Legal & Compliance Links (Essential for Google AdSense & Affiliates) */}
+        <LegalModal />
       </div>
     </div>
   );
