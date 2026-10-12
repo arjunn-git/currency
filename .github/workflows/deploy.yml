@@ -36,7 +36,7 @@ jobs:
 
       - name: Build project
         env:
-          VITE_BASE_PATH: "/"
+          VITE_BASE_PATH: "/currency/"
         run: npm run build
 
       - name: Setup Pages
