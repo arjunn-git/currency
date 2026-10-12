@@ -43,6 +43,9 @@ function Input({
             id={amountInputId}
             type={amountDisabled ? "text" : "number"}
             readOnly={amountDisabled}
+            aria-readonly={amountDisabled}
+            aria-label={label ? `${label} currency amount` : "Currency amount"}
+            inputMode={amountDisabled ? undefined : "decimal"}
             placeholder="0.00"
             disabled={disabled}
             value={amount !== undefined && amount !== null ? amount : ""}
@@ -53,7 +56,7 @@ function Input({
             }}
             min="0"
             step="any"
-            className="w-full bg-transparent text-xl sm:text-2xl font-black text-white outline-none placeholder-white/40 disabled:cursor-not-allowed tracking-tight drop-shadow-sm"
+            className="w-full bg-transparent text-xl sm:text-2xl font-black text-white outline-none placeholder-white/50 disabled:cursor-not-allowed tracking-tight drop-shadow-sm focus-visible:outline-none"
           />
         </div>
 

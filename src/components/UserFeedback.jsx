@@ -58,6 +58,16 @@ function UserFeedback({ isOpen: externalIsOpen, onClose, hideTrigger = false }) 
     }, 3500);
   };
 
+  // Close on Escape key
+  React.useEffect(() => {
+    if (!isModalOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen]);
+
   return (
     <>
       {/* Hidden iframe handles form submission in background without page reload or hanging */}
@@ -74,9 +84,11 @@ function UserFeedback({ isOpen: externalIsOpen, onClose, hideTrigger = false }) 
           <button
             type="button"
             onClick={openModal}
+            aria-haspopup="dialog"
+            aria-expanded={isModalOpen}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-semibold backdrop-blur-md border border-white/25 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
           >
-            <MessageSquarePlus size={14} className="text-amber-300" />
+            <MessageSquarePlus size={14} className="text-amber-300" aria-hidden="true" />
             <span>Suggest a Feature / Give Feedback</span>
           </button>
         </div>
@@ -84,16 +96,26 @@ function UserFeedback({ isOpen: externalIsOpen, onClose, hideTrigger = false }) 
 
       {/* Feedback Modal Dialog */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-gray-100 flex flex-col animate-scaleUp">
+        <div
+          role="presentation"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+          onClick={closeModal}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="feedback-dialog-title"
+            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-gray-100 flex flex-col animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <MessageSquarePlus size={20} className="text-blue-600" />
+                <h2 id="feedback-dialog-title" className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <MessageSquarePlus size={20} className="text-blue-600" aria-hidden="true" />
                   Your Feedback Matters
-                </h3>
+                </h2>
                 <p className="text-xs text-gray-500">
                   Help us make this the #1 currency tool on the web!
                 </p>
@@ -101,9 +123,10 @@ function UserFeedback({ isOpen: externalIsOpen, onClose, hideTrigger = false }) 
               <button
                 type="button"
                 onClick={closeModal}
+                aria-label="Close feedback dialog"
                 className="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 

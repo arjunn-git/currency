@@ -79,17 +79,21 @@ function CurrencyPicker({
     <div
       className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
       onClick={() => setIsOpen(false)}
+      role="presentation"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="currency-picker-title"
         className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[85vh] animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-blue-50/70 to-indigo-50/70">
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-gray-900">
+            <h2 id="currency-picker-title" className="text-base sm:text-lg font-bold text-gray-900">
               Select Currency
-            </h3>
+            </h2>
             <p className="text-xs text-gray-500">
               Choose from 160+ world currencies
             </p>
@@ -97,20 +101,22 @@ function CurrencyPicker({
           <button
             type="button"
             onClick={() => setIsOpen(false)}
+            aria-label="Close currency picker"
             className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
           >
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
         {/* Search Bar */}
         <div className="p-3 border-b border-gray-100 bg-gray-50/60">
           <div className="relative flex items-center">
-            <Search size={18} className="absolute left-3 text-gray-400 pointer-events-none" />
+            <Search size={18} className="absolute left-3 text-gray-400 pointer-events-none" aria-hidden="true" />
             <input
               ref={inputRef}
               type="text"
               value={search}
+              aria-label="Search currency by code, country, or name"
               onChange={(e) => {
                 setSearch(e.target.value);
                 setVisibleCount(PAGE_SIZE);
@@ -125,9 +131,10 @@ function CurrencyPicker({
                   setSearch("");
                   setVisibleCount(PAGE_SIZE);
                 }}
+                aria-label="Clear currency search"
                 className="absolute right-2.5 text-gray-400 hover:text-gray-600 cursor-pointer"
               >
-                <X size={16} />
+                <X size={16} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -198,7 +205,10 @@ function CurrencyPicker({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(true)}
-        className="flex items-center justify-between gap-2 px-3 py-2 bg-white/15 hover:bg-white/25 text-white rounded-xl border border-white/20 shadow-sm backdrop-blur-md hover:border-white/30 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed group w-full text-left cursor-pointer"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-label={`Selected currency: ${selectedCurrency.toUpperCase()} - ${selectedMeta.name}. Click to change currency.`}
+        className="flex items-center justify-between gap-2 px-3 py-2 bg-white/15 hover:bg-white/25 text-white rounded-xl border border-white/20 shadow-sm backdrop-blur-md hover:border-white/30 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed group w-full text-left cursor-pointer focus-visible:outline-none"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <FlagIcon currencyCode={selectedCurrency} className="w-6 h-4" />
@@ -206,13 +216,14 @@ function CurrencyPicker({
             <span className="font-bold text-sm sm:text-base text-white tracking-wide leading-tight drop-shadow-xs">
               {selectedCurrency.toUpperCase()}
             </span>
-            <span className="text-[11px] text-blue-100/80 truncate max-w-[95px] sm:max-w-[110px]">
+            <span className="text-[11px] text-blue-100 truncate max-w-[95px] sm:max-w-[110px]">
               {selectedMeta.name}
             </span>
           </div>
         </div>
         <ChevronDown
           size={16}
+          aria-hidden="true"
           className="text-white/70 group-hover:text-white transition-colors shrink-0"
         />
       </button>

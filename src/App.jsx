@@ -92,6 +92,18 @@ function App() {
     }).format(num);
   }, []);
 
+  // Global Escape key handler to close any active modal
+  React.useEffect(() => {
+    if (!activeModal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setActiveModal(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeModal]);
+
   return (
     <div
       className="w-full min-h-screen bg-[#070b14] text-slate-100 flex flex-col justify-between items-center px-3 sm:px-4 py-5 sm:py-8 relative overflow-x-hidden selection:bg-blue-600 selection:text-white bg-cover bg-center bg-no-repeat"
@@ -104,15 +116,15 @@ function App() {
       <div className="fixed bottom-0 right-1/4 w-[350px] h-[350px] bg-indigo-600/15 blur-3xl pointer-events-none" />
 
       {/* Main Container */}
-      <div className="w-full max-w-md relative z-10 my-auto">
+      <main className="w-full max-w-md relative z-10 my-auto" id="main-content">
         
         {/* Sleek App Header */}
-        <div className="flex items-center justify-between mb-3.5 px-1">
+        <header className="flex items-center justify-between mb-3.5 px-1">
           <div>
             <h1 className="text-lg sm:text-xl font-black text-white tracking-tight drop-shadow-sm">
               Currency Converter
             </h1>
-            <p className="text-xs text-blue-100/70 font-medium mt-0.5">Real-time mid-market rates</p>
+            <p className="text-xs text-blue-100/90 font-medium mt-0.5">Real-time mid-market rates</p>
           </div>
 
           {/* Refresh Button */}
@@ -120,16 +132,22 @@ function App() {
             type="button"
             onClick={() => refetch()}
             disabled={loading}
+            aria-label="Refresh exchange rates"
             title="Refresh exchange rates"
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-sm disabled:opacity-50"
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-sm disabled:opacity-50 focus-visible:outline-none"
           >
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+            <RefreshCw size={15} aria-hidden="true" className={loading ? "animate-spin" : ""} />
           </button>
+        </header>
+
+        {/* Screen Reader Live Announcement for dynamic rate updates */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {loading ? "Updating exchange rates..." : `Current rate: 1 ${from.toUpperCase()} equals ${formatNumber(unitRate)} ${to.toUpperCase()}`}
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-3 p-3 bg-red-950/80 border border-red-800/60 text-red-200 rounded-xl text-xs flex items-center gap-2 backdrop-blur-md">
+          <div role="alert" className="mb-3 p-3 bg-red-950/80 border border-red-800/60 text-red-200 rounded-xl text-xs flex items-center gap-2 backdrop-blur-md">
             <span>{error}</span>
           </div>
         )}
@@ -138,7 +156,11 @@ function App() {
         <div className="bg-slate-900/40 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 sm:p-5 shadow-[0_16px_40px_rgba(0,0,0,0.5)] ring-1 ring-white/10">
           
           {/* Quick Popular Pairs Chips (Scrollbar completely hidden) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-3 border-b border-white/10 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            role="group"
+            aria-label="Popular currency pairs"
+            className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-3 border-b border-white/10 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
             {POPULAR_PAIRS.map((pair) => {
               const isActive =
                 from.toUpperCase() === pair.from && to.toUpperCase() === pair.to;
@@ -147,14 +169,16 @@ function App() {
                   key={`${pair.from}-${pair.to}`}
                   type="button"
                   onClick={() => selectPopularPair(pair.from, pair.to)}
-                  className={`text-[11px] px-2.5 py-1 rounded-lg font-semibold transition-all shrink-0 flex items-center gap-1 cursor-pointer ${
+                  aria-pressed={isActive}
+                  aria-label={`Select pair ${pair.from} to ${pair.to}`}
+                  className={`text-[11px] px-2.5 py-1 rounded-lg font-semibold transition-all shrink-0 flex items-center gap-1 cursor-pointer focus-visible:outline-none ${
                     isActive
                       ? "bg-blue-600/90 text-white shadow-md shadow-blue-500/30 font-bold border border-blue-400/50"
                       : "bg-white/10 hover:bg-white/20 text-white/90 border border-white/15 backdrop-blur-md"
                   }`}
                 >
                   <span>{pair.from}</span>
-                  <span className="text-white/60">→</span>
+                  <span className="text-white/60" aria-hidden="true">→</span>
                   <span>{pair.to}</span>
                 </button>
               );
@@ -162,7 +186,7 @@ function App() {
           </div>
 
           {/* Converter Form */}
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={(e) => e.preventDefault()} aria-label="Currency converter calculator">
             {/* From Input */}
             <div className="mb-1.5">
               <Input
@@ -183,12 +207,13 @@ function App() {
                 type="button"
                 onClick={swap}
                 disabled={loading}
+                aria-label={`Swap ${from.toUpperCase()} and ${to.toUpperCase()} currencies`}
                 title="Swap currencies"
-                className={`absolute p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/25 backdrop-blur-xl shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50 ${
+                className={`absolute p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/25 backdrop-blur-xl shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50 focus-visible:outline-none ${
                   isSwapping ? "rotate-180" : ""
                 }`}
               >
-                <ArrowUpDown size={15} />
+                <ArrowUpDown size={15} aria-hidden="true" />
               </button>
             </div>
 
@@ -208,7 +233,7 @@ function App() {
             {/* Instant Rate Summary & Copy Pill Bar */}
             <div className="flex items-center justify-between p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 text-xs shadow-inner">
               <div className="flex flex-col min-w-0">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-blue-100/70">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-blue-100/90">
                   Mid-Market Rate
                 </span>
                 <span className="font-bold text-white text-xs sm:text-sm truncate drop-shadow-xs">
@@ -220,16 +245,17 @@ function App() {
                 <button
                   type="button"
                   onClick={copyToClipboard}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer shrink-0 border border-blue-400/40"
+                  aria-label="Copy converted currency amount to clipboard"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer shrink-0 border border-blue-400/40 focus-visible:outline-none"
                 >
                   {copied ? (
                     <>
-                      <Check size={13} className="text-emerald-300" />
+                      <Check size={13} className="text-emerald-300" aria-hidden="true" />
                       <span>Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy size={13} />
+                      <Copy size={13} aria-hidden="true" />
                       <span>Copy</span>
                     </>
                   )}
@@ -238,7 +264,7 @@ function App() {
             </div>
 
             {/* Status note */}
-            <div className="flex justify-between items-center text-[10px] text-blue-100/70 mt-2 px-1">
+            <div className="flex justify-between items-center text-[10px] text-blue-100/90 mt-2 px-1">
               <span>{loading ? "Updating..." : lastUpdated ? `Updated: ${lastUpdated}` : "Real-time rates"}</span>
               <span>160+ Currencies Supported</span>
             </div>
@@ -246,72 +272,91 @@ function App() {
         </div>
 
         {/* Clean Secondary Utilities Bar (Frosted Glass Pills) */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-3.5 flex-wrap">
+        <nav aria-label="Quick features" className="flex items-center justify-center gap-1.5 sm:gap-2 mt-3.5 flex-wrap">
           <button
             type="button"
             onClick={() => setActiveModal("compare")}
-            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            aria-haspopup="dialog"
+            aria-expanded={activeModal === "compare"}
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none"
           >
-            <Zap size={13} className="text-amber-300 fill-amber-300" />
+            <Zap size={13} aria-hidden="true" className="text-amber-300 fill-amber-300" />
             <span>Compare Fees</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveModal("alert")}
-            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            aria-haspopup="dialog"
+            aria-expanded={activeModal === "alert"}
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none"
           >
-            <Bell size={13} className="text-yellow-300" />
+            <Bell size={13} aria-hidden="true" className="text-yellow-300" />
             <span>Rate Alert</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveModal("feedback")}
-            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            aria-haspopup="dialog"
+            aria-expanded={activeModal === "feedback"}
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none"
           >
-            <MessageSquarePlus size={13} className="text-blue-300" />
+            <MessageSquarePlus size={13} aria-hidden="true" className="text-blue-300" />
             <span>Feedback</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveModal("faq")}
-            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+            aria-haspopup="dialog"
+            aria-expanded={activeModal === "faq"}
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none"
           >
-            <HelpCircle size={13} className="text-emerald-300" />
+            <HelpCircle size={13} aria-hidden="true" className="text-emerald-300" />
             <span>FAQ & Info</span>
           </button>
-        </div>
+        </nav>
 
         {/* Ad Banner placeholder */}
         <AdBanner slot="1234567890" />
 
         {/* Footer & Compliance */}
-        <div className="mt-4 text-center">
-          <p className="text-[11px] text-slate-500">
+        <footer className="mt-4 text-center">
+          <p className="text-[11px] text-slate-300">
             Real-Time Currency Converter • Free & Instant
           </p>
           <LegalModal />
-        </div>
-      </div>
+        </footer>
+      </main>
 
       {/* ================= MODALS SYSTEM (Uncluttered) ================= */}
       {/* 1. Compare Fees Modal */}
       {activeModal === "compare" && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp">
+        <div
+          role="presentation"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="compare-fees-title"
+            className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Zap size={16} className="text-amber-400" />
+              <h2 id="compare-fees-title" className="text-sm font-bold text-white flex items-center gap-2">
+                <Zap size={16} aria-hidden="true" className="text-amber-400" />
                 Bank Fees vs. Mid-Market Transfers
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
+                aria-label="Close transfer fee comparison"
                 className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
             <TransferAffiliate
@@ -326,19 +371,30 @@ function App() {
 
       {/* 2. Rate Alert Modal */}
       {activeModal === "alert" && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp">
+        <div
+          role="presentation"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rate-alert-title"
+            className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Bell size={16} className="text-yellow-400" />
+              <h2 id="rate-alert-title" className="text-sm font-bold text-white flex items-center gap-2">
+                <Bell size={16} aria-hidden="true" className="text-yellow-400" />
                 Set Exchange Rate Alert
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
+                aria-label="Close rate alert dialog"
                 className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
             <RateAlertCard
@@ -359,19 +415,30 @@ function App() {
 
       {/* 4. FAQ & SEO Guide Modal */}
       {activeModal === "faq" && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto animate-scaleUp">
+        <div
+          role="presentation"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="faq-modal-title"
+            className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <HelpCircle size={16} className="text-emerald-400" />
+              <h2 id="faq-modal-title" className="text-sm font-bold text-white flex items-center gap-2">
+                <HelpCircle size={16} aria-hidden="true" className="text-emerald-400" />
                 Currency Guide & FAQs
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
+                aria-label="Close currency guide and FAQs"
                 className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
             <SeoContent />

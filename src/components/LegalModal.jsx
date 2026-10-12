@@ -74,6 +74,16 @@ function LegalModal() {
     },
   };
 
+  // Close on Escape key
+  React.useEffect(() => {
+    if (!activeTab) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setActiveTab(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeTab]);
+
   return (
     <>
       {/* Footer trigger links */}
@@ -81,6 +91,8 @@ function LegalModal() {
         <button
           type="button"
           onClick={() => setActiveTab("privacy")}
+          aria-haspopup="dialog"
+          aria-expanded={activeTab === "privacy"}
           className="hover:text-white transition-colors underline cursor-pointer"
         >
           Privacy Policy
@@ -88,6 +100,8 @@ function LegalModal() {
         <button
           type="button"
           onClick={() => setActiveTab("disclaimer")}
+          aria-haspopup="dialog"
+          aria-expanded={activeTab === "disclaimer"}
           className="hover:text-white transition-colors underline cursor-pointer"
         >
           Affiliate Disclaimer
@@ -95,6 +109,8 @@ function LegalModal() {
         <button
           type="button"
           onClick={() => setActiveTab("terms")}
+          aria-haspopup="dialog"
+          aria-expanded={activeTab === "terms"}
           className="hover:text-white transition-colors underline cursor-pointer"
         >
           Terms of Use
@@ -102,6 +118,8 @@ function LegalModal() {
         <button
           type="button"
           onClick={() => setActiveTab("contact")}
+          aria-haspopup="dialog"
+          aria-expanded={activeTab === "contact"}
           className="hover:text-white transition-colors underline cursor-pointer"
         >
           Contact
@@ -110,19 +128,30 @@ function LegalModal() {
 
       {/* Modal dialog */}
       {activeTab && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-gray-100 max-h-[85vh] flex flex-col">
+        <div
+          role="presentation"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setActiveTab(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="legal-dialog-title"
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-gray-100 max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                {React.createElement(tabs[activeTab].icon, { size: 18, className: "text-blue-600" })}
+              <h2 id="legal-dialog-title" className="text-base font-bold text-gray-900 flex items-center gap-2">
+                {React.createElement(tabs[activeTab].icon, { size: 18, "aria-hidden": "true", className: "text-blue-600" })}
                 {tabs[activeTab].title}
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => setActiveTab(null)}
+                aria-label="Close dialog"
                 className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 
