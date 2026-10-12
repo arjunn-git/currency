@@ -20,6 +20,7 @@ import AdBanner from "./components/AdBanner";
 import LegalModal from "./components/LegalModal";
 import SeoContent from "./components/SeoContent";
 import UserFeedback from "./components/UserFeedback";
+import bgImage from "./assets/images/bg.jpg";
 import "./App.css";
 
 function App() {
@@ -92,7 +93,12 @@ function App() {
   }, []);
 
   return (
-    <div className="w-full min-h-screen bg-[#070b14] text-slate-100 flex flex-col justify-between items-center px-3 sm:px-4 py-5 sm:py-8 relative overflow-x-hidden selection:bg-blue-600 selection:text-white">
+    <div
+      className="w-full min-h-screen bg-[#070b14] text-slate-100 flex flex-col justify-between items-center px-3 sm:px-4 py-5 sm:py-8 relative overflow-x-hidden selection:bg-blue-600 selection:text-white bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `linear-gradient(rgba(7, 11, 20, 0.78), rgba(7, 11, 20, 0.88)), url(${bgImage})`,
+      }}
+    >
       {/* High-performance CSS ambient glows (0ms load time, 120 FPS) */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[550px] h-[280px] bg-gradient-to-b from-blue-600/15 via-indigo-600/10 to-transparent blur-3xl pointer-events-none" />
       <div className="fixed bottom-0 right-1/4 w-[350px] h-[350px] bg-indigo-600/10 blur-3xl pointer-events-none" />
