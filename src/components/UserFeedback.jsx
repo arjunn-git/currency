@@ -1,8 +1,17 @@
 import React, { useState, memo } from "react";
 import { MessageSquarePlus, Star, X, Send, Check, User, Mail, ExternalLink } from "lucide-react";
 
-function UserFeedback() {
-  const [isOpen, setIsOpen] = useState(false);
+function UserFeedback({ isOpen: externalIsOpen, onClose, hideTrigger = false }) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isModalOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const closeModal = () => {
+    if (onClose) onClose();
+    setInternalIsOpen(false);
+  };
+  const openModal = () => {
+    setInternalIsOpen(true);
+  };
+
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [category, setCategory] = useState("Feature Suggestion");
@@ -41,7 +50,7 @@ function UserFeedback() {
 
     setTimeout(() => {
       setIsSubmitted(false);
-      setIsOpen(false);
+      closeModal();
       setFeedback("");
       setName("");
       setEmail("");
@@ -59,20 +68,22 @@ function UserFeedback() {
         style={{ display: "none" }}
       />
 
-      {/* Feedback Trigger Button */}
-      <div className="flex justify-center mt-3">
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-semibold backdrop-blur-md border border-white/25 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <MessageSquarePlus size={14} className="text-amber-300" />
-          <span>Suggest a Feature / Give Feedback</span>
-        </button>
-      </div>
+      {/* Feedback Trigger Button (optional) */}
+      {!hideTrigger && (
+        <div className="flex justify-center mt-3">
+          <button
+            type="button"
+            onClick={openModal}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-semibold backdrop-blur-md border border-white/25 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <MessageSquarePlus size={14} className="text-amber-300" />
+            <span>Suggest a Feature / Give Feedback</span>
+          </button>
+        </div>
+      )}
 
       {/* Feedback Modal Dialog */}
-      {isOpen && (
+      {isModalOpen && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-gray-100 flex flex-col animate-scaleUp">
             
@@ -89,7 +100,7 @@ function UserFeedback() {
               </div>
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={closeModal}
                 className="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <X size={18} />
@@ -244,7 +255,7 @@ function UserFeedback() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeModal}
                       className="px-3.5 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors cursor-pointer"
                     >
                       Cancel

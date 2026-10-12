@@ -18,19 +18,19 @@ function Input({
 
   return (
     <div
-      className={`bg-white/85 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-lg border border-white/40 transition-shadow duration-150 hover:shadow-xl will-change-transform ${
-        disabled ? "opacity-70" : ""
+      className={`bg-slate-800/70 border border-slate-700/70 rounded-2xl p-3.5 sm:p-4 transition-all duration-150 hover:border-slate-600 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 ${
+        disabled ? "opacity-75" : ""
       } ${className}`}
     >
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-1.5">
         <label
           htmlFor={amountInputId}
-          className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider"
+          className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider"
         >
           {label}
         </label>
         {amountDisabled && (
-          <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 rounded-full">
             Converted Result
           </span>
         )}
@@ -53,12 +53,12 @@ function Input({
             }}
             min="0"
             step="any"
-            className="w-full bg-transparent text-xl sm:text-2xl font-bold text-gray-900 outline-none placeholder-gray-400 disabled:cursor-not-allowed tracking-tight"
+            className="w-full bg-transparent text-xl sm:text-2xl font-black text-white outline-none placeholder-slate-500 disabled:cursor-not-allowed tracking-tight"
           />
         </div>
 
         {/* Currency Picker Button */}
-        <div className="w-[145px] sm:w-[170px] shrink-0">
+        <div className="w-[140px] sm:w-[160px] shrink-0">
           <CurrencyPicker
             selectedCurrency={selectedCurrency}
             onSelect={(curr) => onCurrencyChange && onCurrencyChange(curr)}

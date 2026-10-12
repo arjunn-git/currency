@@ -5,11 +5,13 @@ import {
   Copy,
   Check,
   TrendingUp,
-  Clock,
-  AlertCircle,
+  Zap,
+  Bell,
+  MessageSquarePlus,
+  HelpCircle,
+  X,
 } from "lucide-react";
 import Input from "./components/Input";
-import FlagIcon from "./components/FlagIcon";
 import useCurrencyInfo from "./hooks/useCurrencyinfo";
 import { POPULAR_PAIRS } from "./data/currencies";
 import TransferAffiliate from "./components/TransferAffiliate";
@@ -19,7 +21,6 @@ import LegalModal from "./components/LegalModal";
 import SeoContent from "./components/SeoContent";
 import UserFeedback from "./components/UserFeedback";
 import "./App.css";
-import src from "./assets/images/bg.jpg";
 
 function App() {
   const [amount, setAmount] = useState(1);
@@ -27,8 +28,9 @@ function App() {
   const [to, setTo] = useState("inr");
   const [copied, setCopied] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
+  const [activeModal, setActiveModal] = useState(null); // 'compare' | 'alert' | 'feedback' | 'faq' | null
 
-  const { data: currencyInfo, loading, error, lastUpdated, isStale, refetch } = useCurrencyInfo(from);
+  const { data: currencyInfo, loading, error, lastUpdated, refetch } = useCurrencyInfo(from);
 
   // Available currency options from API rates or default fallback
   const currencyOptions = useMemo(() => {
@@ -45,8 +47,6 @@ function App() {
 
   // Single unit exchange rate
   const unitRate = currencyInfo[to] || 0;
-  const inverseUnitRate = unitRate > 0 ? 1 / unitRate : 0;
-
   const isConversionReady = Boolean(currencyInfo[to] && parseFloat(amount) > 0);
 
   const handleAmountChange = useCallback((val) => {
@@ -92,80 +92,84 @@ function App() {
   }, []);
 
   return (
-    <div
-      className="w-full min-h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-3 sm:px-4 py-8 relative selection:bg-blue-500 selection:text-white"
-      style={{
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.82)), url(${src})`,
-      }}
-    >
-      {/* Main Container */}
-      <div className="w-full max-w-lg">
-        {/* Card */}
-        <div className="backdrop-blur-md bg-white/25 rounded-3xl p-5 sm:p-7 shadow-2xl border border-white/30 ring-1 ring-black/5 transition-shadow duration-150 transform-gpu will-change-transform">
-          
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-sm">
-                Currency Converter
-              </h1>
-              <p className="text-xs text-blue-100 font-medium flex items-center gap-1">
-                <TrendingUp size={12} /> Live exchange rates
-              </p>
-            </div>
+    <div className="w-full min-h-screen bg-[#070b14] text-slate-100 flex flex-col justify-between items-center px-3 sm:px-4 py-5 sm:py-8 relative overflow-x-hidden selection:bg-blue-600 selection:text-white">
+      {/* High-performance CSS ambient glows (0ms load time, 120 FPS) */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[550px] h-[280px] bg-gradient-to-b from-blue-600/15 via-indigo-600/10 to-transparent blur-3xl pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-[350px] h-[350px] bg-indigo-600/10 blur-3xl pointer-events-none" />
 
-            {/* Refresh Button */}
-            <button
-              onClick={() => refetch()}
-              disabled={loading}
-              className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
-              title="Refresh live exchange rates"
-            >
-              <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-            </button>
+      {/* Main Container */}
+      <div className="w-full max-w-md relative z-10 my-auto">
+        
+        {/* Sleek App Header */}
+        <div className="flex items-center justify-between mb-3.5 px-1">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-bold text-sm">
+              💱
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-black text-white tracking-tight">
+                  Currency Converter
+                </h1>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Live
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-medium">Real-time mid-market rates</p>
+            </div>
           </div>
 
-          {/* Error Alert */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-500/90 border border-red-400 text-white rounded-xl text-xs sm:text-sm flex items-center gap-2 backdrop-blur-sm shadow-md">
-              <AlertCircle size={18} className="shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+          {/* Refresh Button */}
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={loading}
+            title="Refresh exchange rates"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 text-slate-300 hover:text-white transition-all active:scale-95 cursor-pointer shadow-sm disabled:opacity-50"
+          >
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
 
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-3 p-3 bg-red-950/80 border border-red-800/60 text-red-200 rounded-xl text-xs flex items-center gap-2">
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* The Main Converter Card */}
+        <div className="bg-slate-900/90 border border-slate-800/90 rounded-3xl p-4 sm:p-5 shadow-2xl backdrop-blur-xl">
+          
           {/* Quick Popular Pairs Chips */}
-          <div className="mb-4">
-            <p className="text-xs font-semibold text-blue-100/90 mb-2 uppercase tracking-wider">
-              Popular Pairs
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {POPULAR_PAIRS.map((pair) => {
-                const isActive =
-                  from.toUpperCase() === pair.from && to.toUpperCase() === pair.to;
-                return (
-                  <button
-                    key={`${pair.from}-${pair.to}`}
-                    type="button"
-                    onClick={() => selectPopularPair(pair.from, pair.to)}
-                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                      isActive
-                        ? "bg-white text-blue-900 shadow font-bold scale-105"
-                        : "bg-white/20 hover:bg-white/30 text-white border border-white/20"
-                    }`}
-                  >
-                    <FlagIcon currencyCode={pair.from} className="w-4 h-2.5" />
-                    <span>{pair.from} → {pair.to}</span>
-                    <FlagIcon currencyCode={pair.to} className="w-4 h-2.5" />
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-3 mb-3 scrollbar-none border-b border-slate-800/80">
+            {POPULAR_PAIRS.map((pair) => {
+              const isActive =
+                from.toUpperCase() === pair.from && to.toUpperCase() === pair.to;
+              return (
+                <button
+                  key={`${pair.from}-${pair.to}`}
+                  type="button"
+                  onClick={() => selectPopularPair(pair.from, pair.to)}
+                  className={`text-[11px] px-2.5 py-1 rounded-lg font-semibold transition-all shrink-0 flex items-center gap-1 cursor-pointer ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-sm shadow-blue-500/30 font-bold"
+                      : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/50"
+                  }`}
+                >
+                  <span>{pair.from}</span>
+                  <span className="text-slate-400">→</span>
+                  <span>{pair.to}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Converter Form */}
           <form onSubmit={(e) => e.preventDefault()}>
             {/* From Input */}
-            <div className="w-full mb-2">
+            <div className="mb-1.5">
               <Input
                 label="You Send"
                 amount={amount}
@@ -177,24 +181,24 @@ function App() {
               />
             </div>
 
-            {/* Swap Button Divider */}
-            <div className="relative w-full h-2 my-4 flex justify-center items-center">
-              <div className="w-full border-t border-white/20"></div>
+            {/* Centered Swap Button */}
+            <div className="relative w-full h-4 my-2 flex justify-center items-center">
+              <div className="w-full border-t border-slate-800" />
               <button
                 type="button"
                 onClick={swap}
                 disabled={loading}
-                className={`absolute p-2.5 sm:p-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg border-2 border-white transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50 ${
+                title="Swap currencies"
+                className={`absolute p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-blue-400 hover:text-blue-300 border border-slate-700 shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50 ${
                   isSwapping ? "rotate-180" : ""
                 }`}
-                title="Swap currencies"
               >
-                <ArrowUpDown size={18} />
+                <ArrowUpDown size={15} />
               </button>
             </div>
 
             {/* To Input */}
-            <div className="w-full mb-4">
+            <div className="mb-3.5">
               <Input
                 label="You Receive"
                 amount={formatNumber(convertedAmount)}
@@ -206,95 +210,179 @@ function App() {
               />
             </div>
 
-            {/* Live Exchange Rate & Inverse Summary Card */}
-            {unitRate > 0 && !loading && (
-              <div className="mb-4 p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 text-white shadow-inner">
-                <div className="flex justify-between items-center text-xs sm:text-sm font-semibold mb-1">
-                  <span className="flex items-center gap-1.5">
-                    <FlagIcon currencyCode={from} className="w-5 h-3.5" />
-                    <span>1 {from.toUpperCase()} =</span>
-                  </span>
-                  <span className="font-bold text-blue-100 flex items-center gap-1.5">
-                    <span>{formatNumber(unitRate)} {to.toUpperCase()}</span>
-                    <FlagIcon currencyCode={to} className="w-5 h-3.5" />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-[11px] text-white/70">
-                  <span>Inverse rate:</span>
-                  <span>
-                    1 {to.toUpperCase()} = {formatNumber(inverseUnitRate)} {from.toUpperCase()}
-                  </span>
-                </div>
+            {/* Instant Rate Summary & Copy Pill Bar */}
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-800 text-xs">
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                  Mid-Market Rate
+                </span>
+                <span className="font-bold text-white text-xs sm:text-sm truncate">
+                  1 {from.toUpperCase()} = {formatNumber(unitRate)} {to.toUpperCase()}
+                </span>
               </div>
-            )}
 
-            {/* Copy Button */}
-            {isConversionReady && (
-              <button
-                type="button"
-                onClick={copyToClipboard}
-                className="w-full py-2.5 px-4 mb-3 bg-white/90 hover:bg-white text-gray-800 rounded-xl font-semibold text-sm transition-all duration-150 shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                {copied ? (
-                  <>
-                    <Check size={16} className="text-emerald-600" />
-                    <span className="text-emerald-700 font-bold">Copied to Clipboard!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy size={16} className="text-gray-600" />
-                    <span>Copy Converted Amount</span>
-                  </>
-                )}
-              </button>
-            )}
-
-            {/* Footer Status Bar */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 text-[11px] text-blue-100 font-medium px-1">
-              <span className="flex items-center gap-1 min-w-0">
-                <Clock size={12} className="shrink-0" />
-                <span>{loading ? "Updating rates…" : lastUpdated ? `Provider update: ${lastUpdated}` : "Exchange rates"}</span>
-                {isStale && <span className="rounded-md bg-amber-300/20 border border-amber-200/30 px-1.5 py-0.5 text-amber-100">Saved rates</span>}
-              </span>
-              <span>160+ Currencies Supported</span>
+              {isConversionReady && (
+                <button
+                  type="button"
+                  onClick={copyToClipboard}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer shrink-0"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={13} className="text-emerald-300" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={13} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
-            {/* Monetization: Remittance & Savings Partner */}
-            {isConversionReady && (
-              <TransferAffiliate
-                from={from}
-                to={to}
-                amount={amount}
-                convertedAmount={convertedAmount}
-              />
-            )}
+            {/* Status note */}
+            <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 px-1">
+              <span>{loading ? "Updating..." : lastUpdated ? `Updated: ${lastUpdated}` : "Real-time rates"}</span>
+              <span>160+ Currencies Supported</span>
+            </div>
+          </form>
+        </div>
 
-            {/* Email Alert Lead Generation */}
+        {/* Clean Secondary Utilities Bar (Fast, Compact & Uncrowded) */}
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-3.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setActiveModal("compare")}
+            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            <Zap size={13} className="text-amber-400 fill-amber-400" />
+            <span>Compare Fees</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveModal("alert")}
+            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            <Bell size={13} className="text-yellow-400" />
+            <span>Rate Alert</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveModal("feedback")}
+            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            <MessageSquarePlus size={13} className="text-blue-400" />
+            <span>Feedback</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveModal("faq")}
+            className="px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            <HelpCircle size={13} className="text-emerald-400" />
+            <span>FAQ & Info</span>
+          </button>
+        </div>
+
+        {/* Ad Banner placeholder */}
+        <AdBanner slot="1234567890" />
+
+        {/* Footer & Compliance */}
+        <div className="mt-4 text-center">
+          <p className="text-[11px] text-slate-500">
+            Real-Time Currency Converter • Free & Instant
+          </p>
+          <LegalModal />
+        </div>
+      </div>
+
+      {/* ================= MODALS SYSTEM (Uncluttered) ================= */}
+      {/* 1. Compare Fees Modal */}
+      {activeModal === "compare" && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Zap size={16} className="text-amber-400" />
+                Bank Fees vs. Mid-Market Transfers
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <TransferAffiliate
+              from={from}
+              to={to}
+              amount={amount}
+              convertedAmount={convertedAmount}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 2. Rate Alert Modal */}
+      {activeModal === "alert" && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Bell size={16} className="text-yellow-400" />
+                Set Exchange Rate Alert
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
             <RateAlertCard
               from={from}
               to={to}
               currentRate={formatNumber(unitRate)}
             />
-          </form>
+          </div>
         </div>
+      )}
 
-        {/* User Feedback & Suggestions Widget */}
-        <UserFeedback />
+      {/* 3. Feedback Modal */}
+      <UserFeedback
+        isOpen={activeModal === "feedback"}
+        onClose={() => setActiveModal(null)}
+        hideTrigger={true}
+      />
 
-        {/* Ad Banner placeholder / integration */}
-        <AdBanner slot="1234567890" />
-
-        {/* Semantic SEO & FAQ Section for Google Ranking */}
-        <SeoContent />
-
-        {/* Brand note / footer */}
-        <p className="text-center text-white/70 text-xs mt-6 drop-shadow">
-          Real-Time Currency Converter • Free & Instant
-        </p>
-
-        {/* Legal & Compliance Links (Essential for Google AdSense & Affiliates) */}
-        <LegalModal />
-      </div>
+      {/* 4. FAQ & SEO Guide Modal */}
+      {activeModal === "faq" && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 sticky top-0 bg-slate-900/95 backdrop-blur z-10">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <HelpCircle size={16} className="text-emerald-400" />
+                Currency Guide & FAQs
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <SeoContent />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
