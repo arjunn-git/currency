@@ -1,0 +1,16 @@
+{
+  "name": "Live Currency Converter",
+  "short_name": "Currency",
+  "description": "Real-time foreign exchange rates and currency converter calculator across 160+ world currencies.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#070b14",
+  "theme_color": "#172554",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

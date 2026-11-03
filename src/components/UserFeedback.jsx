@@ -152,7 +152,7 @@ function UserFeedback({ isOpen: externalIsOpen, onClose, hideTrigger = false }) 
                 <input type="hidden" name="_captcha" value="false" />
                 <input type="hidden" name="_template" value="table" />
                 <input type="hidden" name="_subject" value={`💬 Feedback (${rating} Stars) from ${name || "Visitor"} [${category}]`} />
-                <input type="hidden" name="Live_Website_URL" value="https://arjunn-git.github.io/currency/" />
+                <input type="hidden" name="Live_Website_URL" value={typeof window !== "undefined" ? window.location.href : "https://arjunn-git.github.io/currency/"} />
                 <input type="hidden" name="Rating" value={`${rating} / 5 Stars`} />
                 <input type="hidden" name="Category" value={category} />
                 <input type="hidden" name="_replyto" value={email} />

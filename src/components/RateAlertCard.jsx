@@ -72,7 +72,7 @@ function RateAlertCard({ from = "USD", to = "INR", currentRate }) {
           <input type="hidden" name="_captcha" value="false" />
           <input type="hidden" name="_template" value="table" />
           <input type="hidden" name="_subject" value={`🔔 Rate Alert: 1 ${fromCode} → ${toCode} (${email})`} />
-          <input type="hidden" name="Live_Website_URL" value="https://arjunn-git.github.io/currency/" />
+          <input type="hidden" name="Live_Website_URL" value={typeof window !== "undefined" ? window.location.href : "https://arjunn-git.github.io/currency/"} />
           <input type="hidden" name="Currency_Pair" value={`${fromCode} to ${toCode}`} />
           <input type="hidden" name="Current_Live_Rate" value={currentRate ? `1 ${fromCode} = ${currentRate} ${toCode}` : "Live rate"} />
           <input type="hidden" name="_replyto" value={email} />

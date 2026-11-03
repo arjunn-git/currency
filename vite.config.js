@@ -1,11 +1,14 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  // GitHub project pages need /currency/; local dev and custom domains default to /.
-  const base = env.VITE_BASE_PATH || (mode === 'development' ? '/' : '/currency/')
+  const hasCname = fs.existsSync(path.resolve(process.cwd(), 'public', 'CNAME'))
+  // If custom domain (CNAME file present) or dev mode -> base is '/', otherwise GitHub project pages subfolder '/currency/'
+  const base = env.VITE_BASE_PATH || (mode === 'development' || hasCname ? '/' : '/currency/')
 
   return {
     base,
