@@ -72,12 +72,14 @@ function SupportModal({ isOpen, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="support-modal-title"
-        className="relative w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.85)] ring-1 ring-white/10 max-h-[90vh] overflow-y-auto animate-scaleUp text-slate-100"
+        className="relative w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.85)] ring-1 ring-white/10 max-h-[90vh] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden animate-scaleUp text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Soft Ambient Background Glows */}
-        <div className="absolute -top-16 -right-16 w-40 h-40 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        {/* Soft Ambient Background Glows clipped strictly within card boundaries */}
+        <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+          <div className="absolute -top-12 -right-12 w-40 h-40 bg-blue-500/15 rounded-full blur-2xl" />
+          <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-emerald-500/15 rounded-full blur-2xl" />
+        </div>
 
         {/* Modal Header */}
         <div className="relative z-10 flex items-center justify-between pb-3.5 mb-3.5 border-b border-white/10">

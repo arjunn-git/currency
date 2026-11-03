@@ -437,7 +437,7 @@ function App() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="faq-modal-title"
-            className="relative w-full max-w-lg bg-slate-900/80 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-white/10 max-h-[85vh] overflow-y-auto animate-scaleUp"
+            className="relative w-full max-w-lg bg-slate-900/80 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-white/10 max-h-[85vh] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-white/10 sticky top-0 bg-slate-900/90 backdrop-blur-md z-10">
