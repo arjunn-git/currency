@@ -9,6 +9,7 @@ import {
   Bell,
   MessageSquarePlus,
   HelpCircle,
+  Heart,
   X,
 } from "lucide-react";
 import Input from "./components/Input";
@@ -20,6 +21,7 @@ import AdBanner from "./components/AdBanner";
 import LegalModal from "./components/LegalModal";
 import SeoContent from "./components/SeoContent";
 import UserFeedback from "./components/UserFeedback";
+import SupportModal from "./components/SupportModal";
 import bgImage from "./assets/images/bg.jpg";
 import "./App.css";
 
@@ -316,6 +318,17 @@ function App() {
             <HelpCircle size={13} aria-hidden="true" className="text-emerald-300" />
             <span>FAQ & Info</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveModal("support")}
+            aria-haspopup="dialog"
+            aria-expanded={activeModal === "support"}
+            className="px-3 py-1.5 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/30 backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none"
+          >
+            <Heart size={13} aria-hidden="true" className="text-rose-400 fill-rose-400" />
+            <span>Support</span>
+          </button>
         </nav>
 
         {/* Ad Banner placeholder */}
@@ -445,6 +458,11 @@ function App() {
           </div>
         </div>
       )}
+      {/* 5. Support / Tip Creator Modal */}
+      <SupportModal
+        isOpen={activeModal === "support"}
+        onClose={() => setActiveModal(null)}
+      />
     </div>
   );
 }
