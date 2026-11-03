@@ -348,18 +348,18 @@ function App() {
       {activeModal === "compare" && (
         <div
           role="presentation"
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
           onClick={() => setActiveModal(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="compare-fees-title"
-            className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp"
+            className="relative w-full max-w-md bg-slate-900/80 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-white/10 animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <h2 id="compare-fees-title" className="text-sm font-bold text-white flex items-center gap-2">
+            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-white/10">
+              <h2 id="compare-fees-title" className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                 <Zap size={16} aria-hidden="true" className="text-amber-400" />
                 Bank Fees vs. Mid-Market Transfers
               </h2>
@@ -367,7 +367,7 @@ function App() {
                 type="button"
                 onClick={() => setActiveModal(null)}
                 aria-label="Close transfer fee comparison"
-                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
               >
                 <X size={18} aria-hidden="true" />
               </button>
@@ -386,18 +386,18 @@ function App() {
       {activeModal === "alert" && (
         <div
           role="presentation"
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
           onClick={() => setActiveModal(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="rate-alert-title"
-            className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl animate-scaleUp"
+            className="relative w-full max-w-md bg-slate-900/80 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-white/10 animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-              <h2 id="rate-alert-title" className="text-sm font-bold text-white flex items-center gap-2">
+            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-white/10">
+              <h2 id="rate-alert-title" className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                 <Bell size={16} aria-hidden="true" className="text-yellow-400" />
                 Set Exchange Rate Alert
               </h2>
@@ -405,7 +405,7 @@ function App() {
                 type="button"
                 onClick={() => setActiveModal(null)}
                 aria-label="Close rate alert dialog"
-                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
               >
                 <X size={18} aria-hidden="true" />
               </button>
@@ -430,18 +430,18 @@ function App() {
       {activeModal === "faq" && (
         <div
           role="presentation"
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
           onClick={() => setActiveModal(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="faq-modal-title"
-            className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto animate-scaleUp"
+            className="relative w-full max-w-lg bg-slate-900/80 backdrop-blur-2xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-white/10 max-h-[85vh] overflow-y-auto animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <h2 id="faq-modal-title" className="text-sm font-bold text-white flex items-center gap-2">
+            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-white/10 sticky top-0 bg-slate-900/90 backdrop-blur-md z-10">
+              <h2 id="faq-modal-title" className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                 <HelpCircle size={16} aria-hidden="true" className="text-emerald-400" />
                 Currency Guide & FAQs
               </h2>
@@ -449,7 +449,7 @@ function App() {
                 type="button"
                 onClick={() => setActiveModal(null)}
                 aria-label="Close currency guide and FAQs"
-                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
               >
                 <X size={18} aria-hidden="true" />
               </button>
